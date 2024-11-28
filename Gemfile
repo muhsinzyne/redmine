@@ -16,6 +16,16 @@ gem 'rbpdf', '~> 1.21.3'
 gem 'addressable'
 gem 'rubyzip', '~> 2.3.0'
 
+
+# my custom created
+gem 'puma', '~> 5.6'
+
+
+group :development do
+  gem 'listen', '~> 3.3'
+end
+
+
 #  Ruby Standard Gems
 gem 'csv', '~> 3.2.6'
 gem 'net-imap', '~> 0.3.4'
@@ -106,7 +116,6 @@ group :test do
   gem 'simplecov', '~> 0.22.0', :require => false
   gem "ffi", platforms: [:mingw, :x64_mingw, :mswin]
   # For running system tests
-  gem 'puma'
   gem "capybara", ">= 3.39"
   if Gem.ruby_version < Gem::Version.new('3.0')
     gem "selenium-webdriver", "<= 4.9.0"

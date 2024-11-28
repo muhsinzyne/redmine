@@ -21,10 +21,10 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'puma', '~> 5.6'
 
 
-group :development do
-  gem 'listen', '~> 3.3'
-end
 
+# group :development do
+#   gem 'listen', '~> 3.9.0'
+# end
 
 #  Ruby Standard Gems
 gem 'csv', '~> 3.2.6'
@@ -106,7 +106,7 @@ else
 end
 
 group :development do
-  gem 'listen', '~> 3.3'
+  gem 'listen', '~> 3.9.0'
   gem "yard"
 end
 

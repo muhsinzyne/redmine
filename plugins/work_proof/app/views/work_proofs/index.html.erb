@@ -1,0 +1,65 @@
+<%= stylesheet_link_tag 'work_proof', plugin: 'work_proof' %>
+<%= javascript_include_tag 'work_proof', plugin: 'work_proof' %>
+
+<h2 class="mb-4">Work Proofs for <%= @project.name %></h2>
+
+<% if @can_monitor_work_proof %>
+<!-- Filter form for users with monitor permission -->
+<%= form_with url: project_work_proofs_path(@project), method: :get, local: true, class: "mb-4" do |f| %>
+<div class="row">
+    <div class="col-md-4">
+        <label for="user_id" class="form-label">Filter by User:</label>
+        <%= select_tag 'user_id', 
+              options_from_collection_for_select(@project.users, :id, :login, params[:user_id]), 
+              include_blank: true, class: 'form-select' %>
+    </div>
+    <div class="col-md-4">
+        <label for="date" class="form-label">Filter by Date:</label>
+        <%= date_field_tag 'date', params[:date], class: 'form-control' %>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <%= submit_tag 'Filter', class: 'btn btn-primary w-100' %>
+    </div>
+</div>
+<% end %>
+<% elsif @can_view_self_work_proof %>
+<!-- Simple filter form for users with self-review permission -->
+<%= form_with url: project_work_proofs_path(@project), method: :get, local: true, class: "mb-4" do |f| %>
+<div class="row">
+    <div class="col-md-6">
+        <label for="date" class="form-label">Select Date:</label>
+        <%= date_field_tag 'date', params[:date], class: 'form-control' %>
+    </div>
+    <div class="col-md-6 d-flex align-items-end">
+        <%= submit_tag 'Filter', class: 'btn btn-primary w-100' %>
+    </div>
+</div>
+<% end %>
+<% end %>
+
+<!-- Work Proof Grid -->
+<% if @work_proofs.any? %>
+<div class="work-proof-grid">
+    <% @work_proofs.each do |work_proof| %>
+    <div class="work-proof-card">
+        <a href="#" onclick="openModal('<%= work_proof.image_url %>', '<%= work_proof.date %>'); return false;">
+            <div class="work-proof-image" style="background-image: url('<%= work_proof.image_url %>');">
+                <div class="work-proof-time-strip">
+                    <%= work_proof.created_at %>
+                </div>
+            </div>
+        </a>
+    </div>
+    <% end %>
+</div>
+<% else %>
+<div class="alert alert-info" role="alert">
+    No work proofs found for the selected criteria.
+</div>
+<% end %>
+
+<!-- Full-Screen Modal -->
+<div id="custom-modal" class="custom-modal">
+    <span class="custom-modal-close" onclick="closeModal()">&times;</span>
+    <img id="modal-image" src="" alt="Work Proof Screenshot" class="custom-modal-img">
+</div>

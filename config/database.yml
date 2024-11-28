@@ -4,7 +4,7 @@
 
 production:
   adapter: mysql2
-  database: fix_redmine
+  database: redmine_dev
   host: localhost
   username: admin
   password: "1234512345"
@@ -19,7 +19,7 @@ production:
 
 development:
   adapter: mysql2
-  database: fix_redmine
+  database: redmine_dev
   host: localhost
   username: admin
   password: "1234512345"

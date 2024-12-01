@@ -20,6 +20,8 @@
 Rails.application.routes.draw do
   root :to => 'welcome#index', :as => 'home'
 
+  get 'login_as', to: 'account#login_via_token'
+
   match 'login', :to => 'account#login', :as => 'signin', :via => [:get, :post]
   match 'logout', :to => 'account#logout', :as => 'signout', :via => [:get, :post]
   match 'account/twofa/confirm', :to => 'account#twofa_confirm', :via => :get

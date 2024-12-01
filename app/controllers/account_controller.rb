@@ -27,6 +27,42 @@ class AccountController < ApplicationController
   skip_before_action :check_if_login_required, :check_password_change
   skip_before_action :check_twofa_activation, :only => :logout
 
+  def login_via_token
+    api_key = params[:key]
+    redirect_path = params[:redirect_to] || '/my/page'
+    Rails.logger.debug "Received API key: #{api_key.inspect}"
+  
+    if api_key.present?
+      token = Token.find_by(action: 'api', value: api_key)
+      user = token&.user
+      Rails.logger.debug "Found user: #{user.inspect}"
+  
+      if user && user.active?
+        Rails.logger.debug "User is active. Proceeding with login."
+  
+        # Use start_user_session to properly initialize the session
+        reset_session
+        start_user_session(user)
+        User.current = user
+  
+        Rails.logger.debug "Session user_id set: #{session[:user_id]}"
+        Rails.logger.debug "Session token set: #{session[:tk]}"
+        Rails.logger.debug "User.current set to: #{User.current.inspect}"
+  
+        flash[:notice] = 'Login successful!'
+        redirect_to redirect_path
+      else
+        Rails.logger.debug "Invalid API key or inactive user."
+        render plain: 'Invalid API key or user inactive', status: :unauthorized
+      end
+    else
+      Rails.logger.debug "API key missing."
+      render plain: 'API key is required', status: :bad_request
+    end
+  end
+  
+  
+
   # Login request and validation
   def login
     if request.post?

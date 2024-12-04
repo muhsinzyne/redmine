@@ -1,0 +1,37 @@
+= Redmine
+
+Redmine is a flexible project management web application written using Ruby on Rails framework.
+
+More details can be found in the doc directory or on the official website http://www.redmine.org
+
+
+how to install
+
+
+
+1. 
+
+gem install bundler
+
+2. 
+
+bundle install --without development test
+
+3
+
+bundle exec rake generate_secret_token
+
+4
+
+RAILS_ENV=production bundle exec rake db:migrate
+
+5
+
+RAILS_ENV=production bundle exec rake redmine:load_default_data
+
+6
+
+bundle install
+
+
+RAILS_ENV=development bundle exec puma -C config/puma.rb

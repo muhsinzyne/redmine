@@ -74,9 +74,9 @@ fi
 rbenv global 2.7.8
 rbenv rehash
 
-# Install Bundler
+# Install Bundler (compatible with Ruby 2.7.8)
 print_status "Installing Bundler..."
-gem install bundler
+gem install bundler -v 2.4.22
 rbenv rehash
 
 # Create application directory

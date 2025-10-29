@@ -93,9 +93,15 @@ echo ""
 read -sp "Choose Redmine database password: " DB_PASS
 echo ""
 
-# Configure MySQL
-mysql << EOF
+# Configure MySQL (Ubuntu 22.04 uses auth_socket by default for root)
+print_status "Setting up MySQL database..."
+sudo mysql << EOF
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ROOT_PASS';
+FLUSH PRIVILEGES;
+EOF
+
+# Now we can use the password
+mysql -u root -p"$DB_ROOT_PASS" << EOF
 CREATE DATABASE IF NOT EXISTS redmine_production CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'redmine'@'localhost' IDENTIFIED BY '$DB_PASS';
 GRANT ALL PRIVILEGES ON redmine_production.* TO 'redmine'@'localhost';

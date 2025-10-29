@@ -1,0 +1,46 @@
+Re-running Server Installation on DigitalOcean
+==============================================
+
+SSH into your droplet:
+  ssh root@209.38.123.1
+
+Then run these commands:
+--------------------------
+
+# Remove old script (if exists)
+rm -f server-install.sh
+
+# Download the UPDATED script from GitHub
+wget https://raw.githubusercontent.com/muhsinzyne/redmine/master/deploy/server-install.sh
+
+# Make it executable
+chmod +x server-install.sh
+
+# Run it
+./server-install.sh
+
+Follow the prompts:
+-------------------
+- MySQL root password: [CHOOSE STRONG PASSWORD]
+- Redmine database password: [CHOOSE STRONG PASSWORD]
+
+Wait 20-25 minutes for installation to complete.
+
+When done, access:
+------------------
+http://209.38.123.1
+Login: admin/admin
+
+CHANGE ADMIN PASSWORD IMMEDIATELY!
+
+Troubleshooting:
+----------------
+If it fails, check logs:
+  tail -f /var/www/redmine/log/production.log
+  systemctl status redmine
+
+If you want to start completely fresh:
+  sudo rm -rf /var/www/redmine
+  sudo rm -rf /root/.rbenv
+  ./server-install.sh
+

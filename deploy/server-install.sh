@@ -88,25 +88,72 @@ systemctl enable mysql
 
 echo ""
 print_warning "MySQL Configuration"
-read -sp "Choose MySQL root password: " DB_ROOT_PASS
+echo "Do you know the current MySQL root password?"
+read -p "[yes/no] (no): " KNOW_PASSWORD
+KNOW_PASSWORD=${KNOW_PASSWORD:-no}
+
+if [ "$KNOW_PASSWORD" = "yes" ]; then
+    read -sp "Enter current MySQL root password: " CURRENT_ROOT_PASS
+    echo ""
+else
+    print_status "Will use auth_socket (sudo) to access MySQL"
+    CURRENT_ROOT_PASS=""
+fi
+
+read -sp "Choose NEW MySQL root password (or press Enter to keep current): " NEW_ROOT_PASS
 echo ""
 read -sp "Choose Redmine database password: " DB_PASS
 echo ""
 
-# Configure MySQL (Ubuntu 22.04 uses auth_socket by default for root)
+# Configure MySQL
 print_status "Setting up MySQL database..."
-sudo mysql << EOF
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ROOT_PASS';
+
+if [ "$KNOW_PASSWORD" = "yes" ]; then
+    # User knows password, use it
+    if [ -n "$NEW_ROOT_PASS" ]; then
+        mysql -u root -p"$CURRENT_ROOT_PASS" << EOF
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$NEW_ROOT_PASS';
 FLUSH PRIVILEGES;
 EOF
-
-# Now we can use the password
-mysql -u root -p"$DB_ROOT_PASS" << EOF
+        DB_ROOT_PASS="$NEW_ROOT_PASS"
+    else
+        DB_ROOT_PASS="$CURRENT_ROOT_PASS"
+    fi
+    
+    # Create database and user
+    mysql -u root -p"$DB_ROOT_PASS" << EOF
 CREATE DATABASE IF NOT EXISTS redmine_production CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'redmine'@'localhost' IDENTIFIED BY '$DB_PASS';
 GRANT ALL PRIVILEGES ON redmine_production.* TO 'redmine'@'localhost';
 FLUSH PRIVILEGES;
 EOF
+else
+    # Don't know password, use sudo (auth_socket)
+    if [ -n "$NEW_ROOT_PASS" ]; then
+        sudo mysql << EOF
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$NEW_ROOT_PASS';
+FLUSH PRIVILEGES;
+EOF
+        DB_ROOT_PASS="$NEW_ROOT_PASS"
+    else
+        # Use a default if user doesn't want to set one
+        DB_ROOT_PASS="redmine_temp_$(openssl rand -hex 8)"
+        sudo mysql << EOF
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '$DB_ROOT_PASS';
+FLUSH PRIVILEGES;
+EOF
+        print_warning "Generated MySQL root password: $DB_ROOT_PASS"
+        print_warning "Save this password!"
+    fi
+    
+    # Create database and user
+    mysql -u root -p"$DB_ROOT_PASS" << EOF
+CREATE DATABASE IF NOT EXISTS redmine_production CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'redmine'@'localhost' IDENTIFIED BY '$DB_PASS';
+GRANT ALL PRIVILEGES ON redmine_production.* TO 'redmine'@'localhost';
+FLUSH PRIVILEGES;
+EOF
+fi
 
 print_status "MySQL configured"
 

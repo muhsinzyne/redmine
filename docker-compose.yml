@@ -36,6 +36,12 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_LOG_TO_STDOUT=true
+      # Email configuration
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-465}
+      - MAIL_USERNAME=${MAIL_USERNAME:-tokbox786@gmail.com}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-zxpykysbjlpvdkvo}
+      - MAIL_DOMAIN=${MAIL_DOMAIN:-gmail.com}
     volumes:
       - redmine_files:/usr/src/redmine/files
       - redmine_plugins:/usr/src/redmine/plugins

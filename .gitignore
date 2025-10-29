@@ -48,3 +48,4 @@
 # yarn-error.log
 
 config/gcp/*config/gcp/gcp-key.json
+deploy/package/

@@ -83,9 +83,11 @@ RAILS_LOG_TO_STDOUT=true
 # SMTP_PASSWORD=your-app-password
 EOF
 
-# Precompile assets for production
-print_status "Precompiling assets (this may take a few minutes)..."
-RAILS_ENV=production bundle exec rake assets:precompile
+# Generate necessary directories and files for production
+print_status "Preparing production files..."
+mkdir -p tmp/pdf public/plugin_assets
+# Note: Redmine doesn't use standard Rails asset pipeline
+# Assets are served directly from public/ directory
 
 # Create deployment package
 print_status "Creating deployment package..."

@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+doc/
+
+# Development/Test
+test/
+coverage/
+.rspec
+
+# Dependencies
+node_modules/
+vendor/bundle
+
+# Environment
+.env*
+!.env.production.template
+
+# Logs
+log/*.log
+tmp/
+
+# Files
+files/*
+
+# Assets (generated)
+public/assets
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deployment
+deploy/package/
+

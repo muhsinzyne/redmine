@@ -321,10 +321,13 @@ cat /var/www/redmine/.env.production
 
 **Assets Not Loading:**
 ```bash
-# Recompile assets
+# Check file permissions
 cd /var/www/redmine
-RAILS_ENV=production bundle exec rake assets:precompile
+sudo chown -R www-data:www-data public/
+sudo chmod -R 755 public/
+# Restart services
 sudo systemctl restart redmine
+sudo systemctl restart nginx
 ```
 
 ---

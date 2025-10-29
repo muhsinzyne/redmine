@@ -63,8 +63,8 @@ bundle install --without development test
 # Generate secret key
 bundle exec rake secret
 
-# Precompile assets
-RAILS_ENV=production bundle exec rake assets:precompile
+# Create necessary directories
+mkdir -p tmp/pdf public/plugin_assets files log
 
 # Create deployment package
 tar -czf redmine-deployment.tar.gz \
@@ -187,11 +187,8 @@ bundle install --without development test --path vendor/bundle
 RAILS_ENV=production bundle exec rake db:migrate
 RAILS_ENV=production REDMINE_LANG=en bundle exec rake redmine:load_default_data
 
-# Precompile assets
-RAILS_ENV=production bundle exec rake assets:precompile
-
-# Set permissions
-mkdir -p tmp tmp/pdf public/plugin_assets
+# Set permissions and create directories
+mkdir -p tmp tmp/pdf public/plugin_assets files log
 sudo chown -R ubuntu:ubuntu files log tmp public/plugin_assets
 sudo chmod -R 755 files log tmp public/plugin_assets
 ```

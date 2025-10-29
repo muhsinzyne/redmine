@@ -1,0 +1,78 @@
+# Docker Compose with SSL/HTTPS support
+# Use this for local development with HTTPS
+
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: redmine-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-redmine_production}
+      MYSQL_USER: ${DB_USERNAME:-redmine}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-redminepassword}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - redmine-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redmine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: redmine-app
+    environment:
+      - RAILS_ENV=production
+      - DB_HOST=mysql
+      - DB_NAME=${DB_NAME:-redmine_production}
+      - DB_USERNAME=${DB_USERNAME:-redmine}
+      - DB_PASSWORD=${DB_PASSWORD:-redminepassword}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_LOG_TO_STDOUT=true
+    volumes:
+      - redmine_files:/usr/src/redmine/files
+      - redmine_plugins:/usr/src/redmine/plugins
+      - redmine_logs:/usr/src/redmine/log
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - redmine-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: redmine-nginx
+    volumes:
+      - ./docker/nginx/nginx-ssl.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/usr/src/redmine/public:ro
+      # Mount SSL certificates (create with mkcert)
+      - ./ssl/cert.pem:/etc/nginx/ssl/cert.pem:ro
+      - ./ssl/key.pem:/etc/nginx/ssl/key.pem:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - redmine
+    networks:
+      - redmine-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redmine_files:
+  redmine_plugins:
+  redmine_logs:
+
+networks:
+  redmine-network:
+    driver: bridge
+

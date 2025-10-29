@@ -49,3 +49,9 @@
 
 config/gcp/*config/gcp/gcp-key.json
 deploy/package/
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt

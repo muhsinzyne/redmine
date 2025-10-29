@@ -142,9 +142,9 @@ production:
     transaction_isolation: "READ-COMMITTED"
 EOF
 
-# Generate secret key
+# Generate secret key (using openssl, not rake - avoids dependency issues)
 print_status "Generating secret key..."
-SECRET_KEY=$(bundle exec rake secret)
+SECRET_KEY=$(openssl rand -hex 64)
 
 # Create environment file
 cat > .env.production << EOF
@@ -153,7 +153,7 @@ SECRET_KEY_BASE=$SECRET_KEY
 RAILS_SERVE_STATIC_FILES=true
 EOF
 
-# Install gems
+# Install gems FIRST (before trying to run rake tasks)
 print_status "Installing Ruby gems (this takes 5-10 minutes)..."
 bundle install --without development test --jobs 2
 

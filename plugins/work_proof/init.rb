@@ -14,7 +14,8 @@ Redmine::Plugin.register :work_proof do
   
   # Register custom permissions for Work Proof
   project_module :work_proof do
-    permission :view_work_proof, { work_proofs: [:index] }, public: false
-    permission :view_self_work_proof, { work_proofs: [:index] }, public: false
+    permission :view_work_proof, { work_proofs: [:index], work_proofs_api: [:index, :show] }, public: false
+    permission :view_self_work_proof, { work_proofs: [:index], work_proofs_api: [:index, :show] }, public: false
+    permission :manage_work_proof, { work_proofs_api: [:create, :update, :destroy] }, public: false
   end
 end

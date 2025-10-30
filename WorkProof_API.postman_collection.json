@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "WorkProof API",
+    "description": "Complete API collection for Redmine WorkProof Plugin\n\nBase URL: https://track.gocomart.com\n\nAuthentication: Use API Key in X-Redmine-API-Key header\n\nGet your API key:\n1. Login to Redmine\n2. My Account → API access key → Show",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "workproof-api-v1"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{API_KEY}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "X-Redmine-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Work Proofs",
+      "item": [
+        {
+          "name": "List All Work Proofs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"]
+            },
+            "description": "Get all work proofs for a project.\n\nPermissions required:\n- view_work_proof (see all)\n- view_self_work_proof (see only own)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Work Proofs - Today",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?date={{TODAY}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "{{TODAY}}",
+                  "description": "Filter by specific date (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Get work proofs for today"
+          },
+          "response": []
+        },
+        {
+          "name": "List Work Proofs - By User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?user_id={{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{USER_ID}}",
+                  "description": "Filter by user ID"
+                }
+              ]
+            },
+            "description": "Get work proofs for a specific user.\n\nRequires view_work_proof permission (managers/admins only)"
+          },
+          "response": []
+        },
+        {
+          "name": "List Work Proofs - Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?start_date=2025-10-01&end_date=2025-10-31",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2025-10-01",
+                  "description": "Start date (YYYY-MM-DD)"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2025-10-31",
+                  "description": "End date (YYYY-MM-DD)"
+                }
+              ]
+            },
+            "description": "Get work proofs within a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "List Work Proofs - With Pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?limit=10&offset=0",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Offset for pagination"
+                }
+              ]
+            },
+            "description": "Get paginated work proofs"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Work Proof",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+            },
+            "description": "Get details of a specific work proof by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Work Proof",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"work_proof\": {\n    \"issue_id\": 1,\n    \"date\": \"{{TODAY}}\",\n    \"image_url\": \"https://example.com/proof.jpg\",\n    \"description\": \"Completed feature implementation\",\n    \"work_hours\": 4.5,\n    \"status\": \"completed\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"]
+            },
+            "description": "Create a new work proof.\n\nRequired fields:\n- issue_id\n- date (YYYY-MM-DD)\n- image_url\n\nOptional fields:\n- description\n- work_hours\n- status\n\nPermission required: manage_work_proof"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Work Proof",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"work_proof\": {\n    \"description\": \"Updated description\",\n    \"work_hours\": 5.0,\n    \"status\": \"reviewed\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+            },
+            "description": "Update an existing work proof.\n\nYou can update any of the following fields:\n- issue_id\n- date\n- image_url\n- description\n- work_hours\n- status\n\nPermission required: manage_work_proof"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Work Proof",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+            },
+            "description": "Delete a work proof.\n\nPermission required: manage_work_proof"
+          },
+          "response": []
+        }
+      ],
+      "description": "Work Proof CRUD operations"
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Test API Key Authentication",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Redmine-API-Key",
+                "value": "{{API_KEY}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{BASE_URL}}/users/current.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "current.json"]
+            },
+            "description": "Test if your API key is valid.\n\nReturns current user information if authentication successful."
+          },
+          "response": []
+        },
+        {
+          "name": "Test Basic Auth",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{USERNAME}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{PASSWORD}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/current.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "current.json"]
+            },
+            "description": "Test Basic Authentication with username and password"
+          },
+          "response": []
+        }
+      ],
+      "description": "Test authentication methods"
+    },
+    {
+      "name": "Helper Endpoints",
+      "item": [
+        {
+          "name": "List Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects.json"]
+            },
+            "description": "Get list of all accessible projects to find project IDs"
+          },
+          "response": []
+        },
+        {
+          "name": "List Project Issues",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/issues.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "issues.json"]
+            },
+            "description": "Get list of issues in a project to find issue IDs for work proofs"
+          },
+          "response": []
+        },
+        {
+          "name": "List Project Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/memberships.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "memberships.json"]
+            },
+            "description": "Get list of project members to find user IDs"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/current.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "current.json"]
+            },
+            "description": "Get current authenticated user information"
+          },
+          "response": []
+        }
+      ],
+      "description": "Helper endpoints to get IDs and information"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set today's date automatically",
+          "pm.environment.set('TODAY', new Date().toISOString().split('T')[0]);"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "https://track.gocomart.com",
+      "type": "string"
+    },
+    {
+      "key": "API_KEY",
+      "value": "YOUR_API_KEY_HERE",
+      "type": "string"
+    },
+    {
+      "key": "PROJECT_ID",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "WORK_PROOF_ID",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "USER_ID",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "USERNAME",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "PASSWORD",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "TODAY",
+      "value": "2025-10-29",
+      "type": "string"
+    }
+  ]
+}
+

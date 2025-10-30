@@ -52,7 +52,7 @@ class WorkProofsApiController < ApplicationController
   end
   
   # POST /projects/:project_id/work_proofs.json
-  # Accepts multipart/form-data with image file upload
+  # Accepts multipart/form-data with image file upload OR JSON with work_proof nested params
   def create
     # Handle image upload if file is provided
     if params[:image].present?
@@ -62,16 +62,20 @@ class WorkProofsApiController < ApplicationController
         return
       end
     else
-      # If no file, expect image_url parameter
-      image_url = params[:image_url] || work_proof_params[:image_url]
+      # If no file, expect image_url parameter (from JSON or flat params)
+      image_url = params[:image_url] || params.dig(:work_proof, :image_url)
     end
     
-    @work_proof = WorkProof.new(work_proof_params.except(:image_url))
+    # Build work_proof - handle both nested (JSON) and flat (multipart) params
+    @work_proof = WorkProof.new
     @work_proof.project_id = params[:project_id] || @project.id
-    @work_proof.issue_id = params[:issue_id] if params[:issue_id].present?
+    @work_proof.issue_id = params[:issue_id] || params.dig(:work_proof, :issue_id)
     @work_proof.user_id = User.current.id
     @work_proof.image_url = image_url
-    @work_proof.date = params[:date] || Date.today
+    @work_proof.date = params[:date] || params.dig(:work_proof, :date) || Date.today
+    @work_proof.description = params[:description] || params.dig(:work_proof, :description)
+    @work_proof.work_hours = params[:work_hours] || params.dig(:work_proof, :work_hours)
+    @work_proof.status = params[:status] || params.dig(:work_proof, :status)
     
     if @work_proof.save
       respond_to do |format|

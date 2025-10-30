@@ -45,7 +45,8 @@ Complete documentation for Redmine WorkProof custom installation.
 | [WORKPROOF_API.md](WORKPROOF_API.md) | Complete API documentation for mobile apps |
 | [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) | API security, authentication, permissions |
 | [WORKPROOF_IMAGE_STORAGE.md](WORKPROOF_IMAGE_STORAGE.md) | Image storage architecture (GCS, local storage) |
-| [GCS_SETUP_GUIDE.md](GCS_SETUP_GUIDE.md) | Google Cloud Storage setup for image uploads |
+| [GCS_QUICK_SETUP.md](GCS_QUICK_SETUP.md) | ⚡ **Quick automated GCS setup (recommended)** |
+| [GCS_SETUP_GUIDE.md](GCS_SETUP_GUIDE.md) | Detailed manual GCS setup guide |
 | [POSTMAN_SETUP.md](POSTMAN_SETUP.md) | Import and use Postman collection |
 
 ### **📦 Postman Collection**

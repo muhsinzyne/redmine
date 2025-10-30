@@ -1,10 +1,11 @@
 class WorkProofsApiController < ApplicationController
-  accept_api_auth :index, :show, :create, :update, :destroy
+  accept_api_auth :index, :show, :create, :update, :destroy, :consolidate_by_issue
   
   before_action :find_project
   before_action :find_work_proof, only: [:show, :update, :destroy]
   before_action :authorize_global, only: [:create, :update, :destroy]
   before_action :check_permissions
+  before_action :check_consolidate_permissions, only: [:consolidate_by_issue]
   
   # GET /projects/:project_id/work_proofs.json
   # GET /projects/:project_id/work_proofs.xml
@@ -324,6 +325,14 @@ class WorkProofsApiController < ApplicationController
   def authorize_global
     # For create/update/delete, require appropriate permissions
     unless User.current.admin? || User.current.allowed_to?(:manage_work_proof, @project)
+      render_403
+    end
+  end
+  
+  def check_consolidate_permissions
+    # Users can consolidate their own work proofs with view_self_work_proof permission
+    # Only consolidates their own work (user_id is set to User.current.id in consolidate_by_issue)
+    unless @can_monitor_work_proof || @can_view_self_work_proof
       render_403
     end
   end

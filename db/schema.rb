@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_30_090118) do
+ActiveRecord::Schema.define(version: 2025_10_30_092933) do
 
   create_table "attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "container_id"
@@ -467,6 +467,30 @@ ActiveRecord::Schema.define(version: 2025_10_30_090118) do
     t.text "value"
     t.timestamp "updated_on"
     t.index ["name"], name: "index_settings_on_name"
+  end
+
+  create_table "time_clockings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.integer "issue_id", null: false
+    t.integer "user_id", null: false
+    t.date "date", null: false
+    t.integer "activity_id"
+    t.decimal "time_hours", precision: 5, scale: 2
+    t.text "description"
+    t.string "status", default: "pending"
+    t.boolean "consolidated", default: false
+    t.datetime "consolidated_at"
+    t.integer "time_entry_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["activity_id"], name: "index_time_clockings_on_activity_id"
+    t.index ["consolidated"], name: "index_time_clockings_on_consolidated"
+    t.index ["date"], name: "index_time_clockings_on_date"
+    t.index ["issue_id"], name: "index_time_clockings_on_issue_id"
+    t.index ["project_id"], name: "index_time_clockings_on_project_id"
+    t.index ["status"], name: "index_time_clockings_on_status"
+    t.index ["time_entry_id"], name: "index_time_clockings_on_time_entry_id"
+    t.index ["user_id"], name: "index_time_clockings_on_user_id"
   end
 
   create_table "time_entries", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

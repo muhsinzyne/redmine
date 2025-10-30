@@ -1,48 +1,19 @@
 class WorkProofConsolidationService
   class << self
-    # Consolidate a single work proof to time_entry
-    def consolidate_work_proof(work_proof)
-      return nil if work_proof.consolidated?
-      return nil unless work_proof.clocked_out?
-      
-      ActiveRecord::Base.transaction do
-        time_entry = TimeEntry.create!(
-          project_id: work_proof.project_id,
-          issue_id: work_proof.issue_id,
-          user_id: work_proof.user_id,
-          spent_on: work_proof.date,
-          hours: work_proof.work_hours || work_proof.clock_duration,
-          activity_id: work_proof.activity_id || default_activity_id,
-          comments: generate_comments(work_proof)
-        )
-        
-        work_proof.update!(
-          time_entry_id: time_entry.id,
-          status: WorkProof::STATUS_CONSOLIDATED,
-          consolidated: true,
-          consolidated_at: Time.current
-        )
-        
-        time_entry
-      end
-    rescue => e
-      Rails.logger.error "Consolidation failed for work_proof #{work_proof.id}: #{e.message}"
-      nil
-    end
-    
-    # Consolidate all clocked-out work proofs for an issue/user/date
-    def consolidate_by_issue(issue_id, user_id, date = Date.today)
+    # Consolidate work proofs for an issue/user/date
+    # Calculates hours by counting work proofs (each = interval minutes)
+    def consolidate_by_issue(issue_id, user_id, date = Date.today, interval_minutes = 10)
       work_proofs = WorkProof.where(
         issue_id: issue_id,
         user_id: user_id,
         date: date,
-        status: [WorkProof::STATUS_CLOCKED_OUT, WorkProof::STATUS_CALCULATED],
-        consolidated: false
-      )
+        consolidated: [false, nil]
+      ).where(status: [WorkProof::STATUS_PENDING, nil])
       
       return nil if work_proofs.empty?
       
-      total_hours = work_proofs.sum(:work_hours)
+      # Calculate total hours: count * interval / 60
+      total_hours = (work_proofs.count * interval_minutes / 60.0).round(2)
       
       ActiveRecord::Base.transaction do
         time_entry = TimeEntry.create!(
@@ -52,7 +23,7 @@ class WorkProofConsolidationService
           spent_on: date,
           hours: total_hours,
           activity_id: work_proofs.first.activity_id || default_activity_id,
-          comments: "Consolidated from #{work_proofs.count} work proof(s)"
+          comments: "Consolidated from #{work_proofs.count} work proof(s) - #{total_hours}h"
         )
         
         work_proofs.each do |wp|
@@ -72,26 +43,26 @@ class WorkProofConsolidationService
     end
     
     # Auto-consolidate work proofs older than 4 hours
-    def auto_consolidate_old_entries
-      work_proofs = WorkProof.needs_auto_consolidation
+    # Groups by issue/user/date and consolidates each group
+    def auto_consolidate_old_entries(interval_minutes = 10)
+      # Find work proofs that need consolidation
+      old_proofs = WorkProof.needs_auto_consolidation
+      
+      return 0 if old_proofs.empty?
+      
+      # Group by issue/user/date
+      groups = old_proofs.group_by { |wp| [wp.issue_id, wp.user_id, wp.date] }
       
       consolidated_count = 0
-      work_proofs.find_each do |work_proof|
-        # Auto calculate hours if not clocked out
-        if work_proof.status == WorkProof::STATUS_PENDING || work_proof.status == WorkProof::STATUS_CLOCKED_IN
-          work_proof.clocked_out_at = Time.current
-          work_proof.work_hours = work_proof.clock_duration
-          work_proof.status = WorkProof::STATUS_CALCULATED
-          work_proof.save!
-        end
+      groups.each do |(issue_id, user_id, date), proofs|
+        Rails.logger.info "Auto-consolidating #{proofs.count} work proofs for issue ##{issue_id}, user ##{user_id}, date #{date}"
         
-        # Consolidate to time entry
-        if consolidate_work_proof(work_proof)
-          consolidated_count += 1
+        if consolidate_by_issue(issue_id, user_id, date, interval_minutes)
+          consolidated_count += proofs.count
         end
       end
       
-      Rails.logger.info "Auto-consolidated #{consolidated_count} work proofs"
+      Rails.logger.info "Auto-consolidated #{consolidated_count} work proofs into #{groups.size} time entries"
       consolidated_count
     end
     
@@ -99,12 +70,6 @@ class WorkProofConsolidationService
     
     def default_activity_id
       TimeEntryActivity.first&.id || 9 # 9 is typically "Development" in Redmine
-    end
-    
-    def generate_comments(work_proof)
-      comments = "Work proof ##{work_proof.id}"
-      comments += " - #{work_proof.description}" if work_proof.description.present?
-      comments
     end
   end
 end

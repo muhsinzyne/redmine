@@ -2,7 +2,7 @@ class WorkProofsApiController < ApplicationController
   accept_api_auth :index, :show, :create, :update, :destroy
   
   before_action :find_project
-  before_action :find_work_proof, only: [:show, :update, :destroy, :clock_out, :consolidate]
+  before_action :find_work_proof, only: [:show, :update, :destroy]
   before_action :authorize_global, only: [:create, :update, :destroy]
   before_action :check_permissions
   
@@ -74,14 +74,8 @@ class WorkProofsApiController < ApplicationController
     @work_proof.image_url = image_url
     @work_proof.date = params[:date] || params.dig(:work_proof, :date) || Date.today
     @work_proof.description = params[:description] || params.dig(:work_proof, :description)
-    @work_proof.work_hours = params[:work_hours] || params.dig(:work_proof, :work_hours)
     @work_proof.activity_id = params[:activity_id] || params.dig(:work_proof, :activity_id)
-    @work_proof.status = params[:status] || params.dig(:work_proof, :status) || WorkProof::STATUS_PENDING
-    
-    # Set clocked_in_at if this is the first entry or status is clocked_in
-    if @work_proof.status == WorkProof::STATUS_CLOCKED_IN || @work_proof.status == WorkProof::STATUS_PENDING
-      @work_proof.clocked_in_at ||= Time.current
-    end
+    @work_proof.status = WorkProof::STATUS_PENDING # Always pending (screenshot proof)
     
     if @work_proof.save
       respond_to do |format|
@@ -120,83 +114,21 @@ class WorkProofsApiController < ApplicationController
     end
   end
   
-  # POST /projects/:project_id/work_proofs/:id/clock_out.json
-  # Clock out and calculate total hours
-  def clock_out
-    if @work_proof.clocked_out?
-      render json: { errors: ['Already clocked out'] }, status: :unprocessable_entity
-      return
-    end
-    
-    @work_proof.clocked_out_at = Time.current
-    @work_proof.work_hours = @work_proof.clock_duration
-    @work_proof.status = WorkProof::STATUS_CALCULATED
-    
-    if @work_proof.save
-      respond_to do |format|
-        format.json { render json: work_proof_to_json(@work_proof), status: :ok }
-        format.xml { render xml: @work_proof.to_xml, status: :ok }
-      end
-    else
-      respond_to do |format|
-        format.json { render json: { errors: @work_proof.errors.full_messages }, status: :unprocessable_entity }
-        format.xml { render xml: @work_proof.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-  
-  # POST /projects/:project_id/work_proofs/:id/consolidate.json
-  # Consolidate to time_entries
-  def consolidate
-    if @work_proof.consolidated?
-      render json: { errors: ['Already consolidated'] }, status: :unprocessable_entity
-      return
-    end
-    
-    unless @work_proof.clocked_out?
-      render json: { errors: ['Must clock out before consolidating'] }, status: :unprocessable_entity
-      return
-    end
-    
-    time_entry = WorkProofConsolidationService.consolidate_work_proof(@work_proof)
-    
-    if time_entry
-      respond_to do |format|
-        format.json do
-          render json: {
-            work_proof: work_proof_hash(@work_proof.reload),
-            time_entry: {
-              id: time_entry.id,
-              hours: time_entry.hours,
-              spent_on: time_entry.spent_on,
-              activity_id: time_entry.activity_id,
-              comments: time_entry.comments
-            }
-          }, status: :ok
-        end
-        format.xml { render xml: { work_proof: @work_proof, time_entry: time_entry }.to_xml, status: :ok }
-      end
-    else
-      respond_to do |format|
-        format.json { render json: { errors: ['Consolidation failed'] }, status: :unprocessable_entity }
-        format.xml { render xml: { errors: ['Consolidation failed'] }.to_xml, status: :unprocessable_entity }
-      end
-    end
-  end
-  
   # POST /projects/:project_id/work_proofs/consolidate_by_issue.json
-  # Consolidate all clocked-out work proofs for an issue
+  # Consolidate all pending work proofs for an issue to time_entry
+  # Calculates hours by counting screenshots (each = interval minutes)
   def consolidate_by_issue
     issue_id = params[:issue_id] || params.dig(:work_proof, :issue_id)
     user_id = params[:user_id] || User.current.id
     date = params[:date] ? Date.parse(params[:date]) : Date.today
+    interval_minutes = (params[:interval_minutes] || 10).to_i # Default 10 min screenshots
     
     unless issue_id
       render json: { errors: ['issue_id is required'] }, status: :bad_request
       return
     end
     
-    time_entry = WorkProofConsolidationService.consolidate_by_issue(issue_id, user_id, date)
+    time_entry = WorkProofConsolidationService.consolidate_by_issue(issue_id, user_id, date, interval_minutes)
     
     if time_entry
       work_proofs = WorkProof.where(time_entry_id: time_entry.id)
@@ -208,9 +140,16 @@ class WorkProofsApiController < ApplicationController
               hours: time_entry.hours,
               spent_on: time_entry.spent_on,
               activity_id: time_entry.activity_id,
-              comments: time_entry.comments
+              comments: time_entry.comments,
+              issue_id: time_entry.issue_id,
+              user_id: time_entry.user_id
             },
-            work_proofs_consolidated: work_proofs.count
+            work_proofs_consolidated: work_proofs.count,
+            calculation: {
+              screenshots: work_proofs.count,
+              interval_minutes: interval_minutes,
+              total_hours: time_entry.hours
+            }
           }, status: :ok
         end
         format.xml { render xml: { time_entry: time_entry, work_proofs_count: work_proofs.count }.to_xml, status: :ok }

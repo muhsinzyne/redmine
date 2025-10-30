@@ -1,249 +1,386 @@
-# Redmine WorkProof Documentation
+# Redmine API Documentation
 
-Complete documentation for Redmine WorkProof custom installation.
+Complete API documentation and Postman collections for Redmine and custom plugins.
 
----
+## 📚 Available Documentation
 
-## 📚 **Documentation Index**
-
-### **🚀 Deployment Guides**
+### Core Redmine APIs
 
 | Document | Description |
 |----------|-------------|
-| [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | Complete deployment guide for AWS, GCP, DigitalOcean |
-| [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) | Docker deployment on AWS ECS, EKS, Fargate |
-| [T2_MICRO_DEPLOYMENT.md](T2_MICRO_DEPLOYMENT.md) | Deploy on AWS t2.micro (1GB RAM, free tier) |
-| [DIGITALOCEAN_DEPLOYMENT.md](DIGITALOCEAN_DEPLOYMENT.md) | DigitalOcean droplet deployment guide |
-| [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md) | Compare AWS, GCP, DigitalOcean costs & features |
-| [QUICK_START.md](QUICK_START.md) | Quick start deployment guide |
-| [DEPLOY_README.md](DEPLOY_README.md) | Deployment scripts overview |
-| [DOCKER_README.md](DOCKER_README.md) | Docker commands and setup |
+| [**REDMINE_COMPLETE_API_GUIDE.md**](REDMINE_COMPLETE_API_GUIDE.md) | Complete guide to all 79+ standard Redmine REST API endpoints |
+| [**GCS_SETUP_GUIDE.md**](GCS_SETUP_GUIDE.md) | Google Cloud Storage setup for file storage |
+| [**GCS_KEY_MANAGEMENT.md**](GCS_KEY_MANAGEMENT.md) | GCS service account key management |
+| [**GCS_QUICK_SETUP.md**](GCS_QUICK_SETUP.md) | Quick automated GCS setup |
 
-### **🔐 Security & SSL**
+### Custom Plugin APIs
 
 | Document | Description |
 |----------|-------------|
-| [SSL_DOMAIN_SETUP.md](SSL_DOMAIN_SETUP.md) | Configure HTTPS with custom domain (Let's Encrypt, CloudFlare, AWS ACM) |
-| [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) | API authentication, authorization, security best practices |
-
-### **📧 Email Configuration**
-
-| Document | Description |
-|----------|-------------|
-| [EMAIL_SETUP.md](EMAIL_SETUP.md) | Configure SMTP email (Gmail, testing, troubleshooting) |
-
-### **🔧 Development & Workflow**
-
-| Document | Description |
-|----------|-------------|
-| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) | Plugin development, testing, and production updates |
-
-### **📱 WorkProof API**
-
-| Document | Description |
-|----------|-------------|
-| [WORKPROOF_API.md](WORKPROOF_API.md) | Complete API documentation for mobile apps |
-| [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) | API security, authentication, permissions |
-| [WORKPROOF_IMAGE_STORAGE.md](WORKPROOF_IMAGE_STORAGE.md) | Image storage architecture (GCS, local storage) |
-| [GCS_QUICK_SETUP.md](GCS_QUICK_SETUP.md) | ⚡ **Quick automated GCS setup (recommended)** |
-| [GCS_SETUP_GUIDE.md](GCS_SETUP_GUIDE.md) | Detailed manual GCS setup guide |
-| [POSTMAN_LOCAL_TESTING.md](POSTMAN_LOCAL_TESTING.md) | ⚡ **Test API locally with Postman** |
-| [POSTMAN_SETUP.md](POSTMAN_SETUP.md) | Import and use Postman collection (production) |
-
-### **📦 Postman Collection**
-
-| File | Description |
-|------|-------------|
-| [WorkProof_API.postman_collection.json](WorkProof_API.postman_collection.json) | Postman collection with 10 API requests |
-| [WorkProof_API_Local.postman_environment.json](WorkProof_API_Local.postman_environment.json) | ⚡ **Local development environment (localhost:3000)** |
-| [WorkProof_API.postman_environment.json](WorkProof_API.postman_environment.json) | Production environment (track.gocomart.com) |
+| [**TIME_TRACKING_API.md**](TIME_TRACKING_API.md) | Complete guide for WorkProof and Time Clocking APIs |
 
 ---
 
-## 🎯 **Quick Links by Use Case**
+## 🚀 Postman Collections
 
-### **"I want to deploy Redmine to production"**
+### 1. Redmine Complete REST API (79+ Endpoints)
 
-1. Choose your platform:
-   - **AWS EC2** → [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-   - **AWS Docker** → [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md)
-   - **AWS Free Tier** → [T2_MICRO_DEPLOYMENT.md](T2_MICRO_DEPLOYMENT.md)
-   - **DigitalOcean** → [DIGITALOCEAN_DEPLOYMENT.md](DIGITALOCEAN_DEPLOYMENT.md)
-   - **Not sure?** → [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md)
+Complete standard Redmine API coverage based on official documentation.
 
-2. Setup HTTPS:
-   - [SSL_DOMAIN_SETUP.md](SSL_DOMAIN_SETUP.md)
+**Files:**
+- `Redmine_Complete_API.postman_collection.json`
+- `Redmine_Complete_API_Local.postman_environment.json`
+- `Redmine_Complete_API_Production.postman_environment.json`
 
-3. Configure email:
-   - [EMAIL_SETUP.md](EMAIL_SETUP.md)
+**Coverage:**
+- ✅ Issues (8 endpoints)
+- ✅ Projects (5)
+- ✅ Users (6)
+- ✅ Time Entries (6)
+- ✅ Attachments (4)
+- ✅ Wiki Pages (5)
+- ✅ Issue Relations (4)
+- ✅ Versions (5)
+- ✅ Issue Categories (5)
+- ✅ Trackers (1)
+- ✅ Issue Statuses (1)
+- ✅ Enumerations (3)
+- ✅ Groups (7)
+- ✅ Roles (2)
+- ✅ Memberships (5)
+- ✅ Custom Fields (1)
+- ✅ Queries (1)
+- ✅ News (2)
+- ✅ Files (1)
+- ✅ Search (2)
+- ✅ My Account (2)
+- ✅ Journals (3)
 
----
+**Total: 79+ endpoints**
 
-### **"I'm building a mobile app for WorkProof"**
-
-1. **API Documentation:**
-   - [WORKPROOF_API.md](WORKPROOF_API.md) - Complete API reference
-
-2. **Security:**
-   - [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) - Authentication & permissions
-
-3. **Image Uploads:**
-   - [GCS_SETUP_GUIDE.md](GCS_SETUP_GUIDE.md) - How image upload works
-   - [WORKPROOF_IMAGE_STORAGE.md](WORKPROOF_IMAGE_STORAGE.md) - Storage architecture
-
-4. **Testing:**
-   - [POSTMAN_SETUP.md](POSTMAN_SETUP.md) - Test API with Postman
-   - [WorkProof_API.postman_collection.json](WorkProof_API.postman_collection.json) - Import this
-
----
-
-### **"I'm developing plugins or features"**
-
-1. **Development workflow:**
-   - [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) - Dev, test, deploy cycle
-
-2. **API development:**
-   - [WORKPROOF_API.md](WORKPROOF_API.md) - API structure
-   - [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) - Security implementation
+**Guide:** [REDMINE_COMPLETE_API_GUIDE.md](REDMINE_COMPLETE_API_GUIDE.md)
 
 ---
 
-### **"I need to update production"**
+### 2. WorkProof API (22 Endpoints)
 
-1. **Update workflow:**
-   - [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) - Safe production updates
+Custom time tracking system with screenshot proof and premium time clocking.
 
-2. **Deployment:**
-   - See your platform's deployment guide above
+**Files:**
+- `WorkProof_API.postman_collection.json`
+- `WorkProof_API_Local.postman_environment.json`
+- `WorkProof_API.postman_environment.json` (production)
 
----
+**Coverage:**
 
-## 📋 **Document Categories**
+**Work Proofs (11 endpoints)** - With screenshot upload:
+- List all work proofs (with filters)
+- Get single work proof
+- Create work proof (with image upload)
+- Update work proof
+- Delete work proof
+- Consolidate work proofs by issue
 
-### **Deployment** (8 docs)
-- Complete guides for all platforms
-- Docker and traditional deployments
-- Free tier and production options
+**Redmine Standard APIs (5 endpoints)** - Helper endpoints:
+- List projects
+- List issues
+- List users
+- List time entry activities
+- List time entries
 
-### **API** (5 docs)
-- Complete REST API documentation
-- Security and authentication
-- Image upload and storage
-- Postman collection
+**Time Clockings (6 endpoints)** - Premium users (no screenshots):
+- List time clockings
+- Create time clocking (JSON only)
+- Get time clocking
+- Update time clocking
+- Delete time clocking
+- Consolidate time clockings by issue
 
-### **Configuration** (2 docs)
-- HTTPS/SSL setup
-- Email configuration
+**Total: 22 endpoints**
 
-### **Development** (1 doc)
-- Plugin development workflow
-
----
-
-## 🔗 **External Resources**
-
-- **Redmine Official:** https://www.redmine.org/
-- **Redmine API:** https://www.redmine.org/projects/redmine/wiki/Rest_api
-- **Ruby on Rails:** https://rubyonrails.org/
-- **Docker:** https://www.docker.com/
-- **AWS:** https://aws.amazon.com/
-- **GCP:** https://cloud.google.com/
-- **DigitalOcean:** https://www.digitalocean.com/
+**Guide:** [TIME_TRACKING_API.md](TIME_TRACKING_API.md)
 
 ---
 
-## 🆘 **Getting Help**
+## 🔧 Quick Setup
 
-### **Common Issues**
+### Step 1: Import to Postman
 
-**Deployment issues:**
-- Check [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) troubleshooting section
-- Check [QUICK_START.md](QUICK_START.md) common problems
+**Import all collections:**
 
-**API issues:**
-- Check [WORKPROOF_API_SECURITY.md](WORKPROOF_API_SECURITY.md) security testing
-- Check [WORKPROOF_API.md](WORKPROOF_API.md) error responses
-
-**Email issues:**
-- Check [EMAIL_SETUP.md](EMAIL_SETUP.md) troubleshooting
-
-**SSL issues:**
-- Check [SSL_DOMAIN_SETUP.md](SSL_DOMAIN_SETUP.md) troubleshooting
-
----
-
-## 📊 **Documentation Stats**
-
-- **Total Documents:** 16
-- **Deployment Guides:** 8
-- **API Documentation:** 5
-- **Configuration Guides:** 2
-- **Development Guides:** 1
-- **Postman Files:** 2
+1. Open Postman
+2. Click **Import**
+3. Drag these files:
+   - `Redmine_Complete_API.postman_collection.json`
+   - `Redmine_Complete_API_Local.postman_environment.json`
+   - `Redmine_Complete_API_Production.postman_environment.json`
+   - `WorkProof_API.postman_collection.json`
+   - `WorkProof_API_Local.postman_environment.json`
+   - `WorkProof_API.postman_environment.json`
+4. Click **Import**
 
 ---
 
-## ✅ **What's Covered**
+### Step 2: Configure Environment
 
-### **Deployment**
-- ✅ AWS EC2 deployment
-- ✅ AWS RDS database
-- ✅ AWS ECS/Fargate (Docker)
-- ✅ AWS EKS (Kubernetes)
-- ✅ GCP Compute Engine
-- ✅ GCP Cloud SQL
-- ✅ DigitalOcean Droplets
-- ✅ Docker Compose (local)
-- ✅ Free tier options (t2.micro)
-- ✅ Production-ready configs
+**For Local Development:**
 
-### **Security**
-- ✅ HTTPS/SSL certificates
-- ✅ Let's Encrypt automation
-- ✅ API authentication
-- ✅ Role-based permissions
-- ✅ Secure API key storage
-- ✅ Firewall configuration
+1. Select environment: **"Redmine Complete API - Local Development"** or **"WorkProof Local Development"**
+2. Set `API_KEY`:
+   - Login to Redmine (http://localhost:4001)
+   - Go to **My Account**
+   - Scroll to **API access key**
+   - Click **Show**
+   - Copy and paste to Postman environment
 
-### **Features**
-- ✅ WorkProof REST API
-- ✅ Image upload (GCS/local)
-- ✅ Email notifications
-- ✅ Mobile app support
-- ✅ Postman testing
-- ✅ Production updates
+**For Production:**
 
-### **Infrastructure**
-- ✅ Nginx reverse proxy
-- ✅ Systemd services
-- ✅ Database backups
-- ✅ Log management
-- ✅ Health checks
-- ✅ Auto-restart
+1. Select environment: **"Redmine Complete API - Production"** or **"WorkProof API - Production"**
+2. Set `API_KEY`:
+   - Login to https://track.gocomart.com
+   - Go to **My Account**
+   - Copy API key
+   - Paste to Postman environment
 
 ---
 
-## 🚀 **Next Steps**
+### Step 3: Test
 
-1. **New to Redmine?**
-   - Start with [QUICK_START.md](QUICK_START.md)
+**Test Redmine Complete API:**
 
-2. **Deploying to production?**
-   - Choose platform: [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md)
-   - Follow deployment guide for your platform
+1. Request: `My Account → Get My Account`
+2. Should return your user details ✅
 
-3. **Building mobile app?**
-   - Read [WORKPROOF_API.md](WORKPROOF_API.md)
-   - Test with [Postman collection](WorkProof_API.postman_collection.json)
+**Test WorkProof API:**
 
-4. **Developing plugins?**
-   - Read [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)
+1. Request: `Redmine Standard APIs → List Projects`
+2. Should return projects ✅
 
 ---
 
-**Last Updated:** October 30, 2025
+## 📖 Documentation Structure
 
-**Redmine Version:** 5.1 (Rails 6.1.7.10, Ruby 2.7.8)
+```
+docs/
+├── README.md                                          ← You are here
+├── REDMINE_COMPLETE_API_GUIDE.md                     ← Complete Redmine API guide
+├── TIME_TRACKING_API.md                              ← WorkProof & Time Clocking guide
+├── GCS_SETUP_GUIDE.md                                ← Google Cloud Storage setup
+├── GCS_KEY_MANAGEMENT.md                             ← GCS key management
+├── GCS_QUICK_SETUP.md                                ← Automated GCS setup
+├── Redmine_Complete_API.postman_collection.json      ← 79+ Redmine endpoints
+├── Redmine_Complete_API_Local.postman_environment.json
+├── Redmine_Complete_API_Production.postman_environment.json
+├── WorkProof_API.postman_collection.json             ← 22 WorkProof endpoints
+├── WorkProof_API_Local.postman_environment.json
+└── WorkProof_API.postman_environment.json
+```
 
-**WorkProof Plugin:** Custom implementation with REST API
+---
 
+## 🎯 Use Cases
+
+### Standard Redmine Operations
+
+**Use: Redmine Complete API Collection**
+
+- Managing issues, projects, users
+- Time tracking with standard time entries
+- Wiki pages, attachments, files
+- Project administration
+- User and group management
+- Issue relations and versions
+- Search and queries
+
+**Guide:** [REDMINE_COMPLETE_API_GUIDE.md](REDMINE_COMPLETE_API_GUIDE.md)
+
+---
+
+### Time Tracking with Screenshot Proof
+
+**Use: WorkProof API Collection → Work Proofs**
+
+- Mobile apps that track time with screenshots
+- Proof of work for remote teams
+- Screenshot-based time tracking
+- Automatic consolidation to time entries
+- Image storage in Google Cloud Storage
+
+**Features:**
+- Upload screenshot with each work proof
+- Track incremental hours
+- Consolidate multiple proofs to single time entry
+- GCS storage for images
+
+**Guide:** [TIME_TRACKING_API.md](TIME_TRACKING_API.md) → Work Proofs section
+
+---
+
+### Time Tracking WITHOUT Screenshots (Premium)
+
+**Use: WorkProof API Collection → Time Clockings**
+
+- Premium/trusted users
+- No screenshot required
+- JSON-only requests (faster, less bandwidth)
+- Same consolidation logic as work proofs
+- For users who don't need screenshot proof
+
+**Features:**
+- Simple JSON API
+- Track incremental hours
+- Consolidate to time entries
+- No image upload/storage overhead
+
+**Guide:** [TIME_TRACKING_API.md](TIME_TRACKING_API.md) → Time Clockings section
+
+---
+
+## 🔐 Authentication
+
+All APIs use **Redmine API Key** authentication.
+
+**Header:**
+```
+X-Redmine-API-Key: your-api-key-here
+```
+
+**Get your API key:**
+
+1. Login to Redmine
+2. Top right: **My Account**
+3. Scroll to **API access key**
+4. Click **Show**
+5. Copy the key
+
+**Enable API in Redmine:**
+
+- Administration → Settings → API
+- Check **Enable REST API**
+- Save
+
+---
+
+## 🌐 Environments
+
+### Local Development
+
+- **URL:** http://localhost:4001
+- **Use for:** Development and testing
+- **Environment files:**
+  - `Redmine_Complete_API_Local.postman_environment.json`
+  - `WorkProof_API_Local.postman_environment.json`
+
+### Production
+
+- **URL:** https://track.gocomart.com
+- **Use for:** Production API testing
+- **Environment files:**
+  - `Redmine_Complete_API_Production.postman_environment.json`
+  - `WorkProof_API.postman_environment.json`
+
+---
+
+## 📊 API Comparison
+
+| Feature | Redmine Complete API | WorkProof API | Time Clocking API |
+|---------|---------------------|---------------|-------------------|
+| **Endpoints** | 79+ | 11 | 6 |
+| **Type** | Core Redmine | Custom Plugin | Custom Plugin |
+| **Screenshot** | ❌ | ✅ Required | ❌ |
+| **Image Storage** | Redmine DB | GCS | N/A |
+| **Use Case** | General Redmine | Screenshot proof | Premium users |
+| **Mobile Friendly** | ✅ | ✅ | ✅ Very |
+| **Bandwidth** | Low | High (images) | Very Low |
+| **Time Tracking** | Standard | With proof | Without proof |
+| **Auto Consolidate** | ❌ | ✅ | ✅ |
+
+---
+
+## 🛠️ Additional Tools
+
+### Kill Port Script
+
+Kill processes on specific ports (useful when Rails server is stuck).
+
+**File:** `../kill-port.sh`
+
+**Usage:**
+```bash
+./kill-port.sh 4001    # Kill port 4001
+./kill-port.sh 3000    # Kill port 3000
+./kill-port.sh         # Default: 4001
+```
+
+---
+
+## 📝 Notes
+
+### WorkProof vs Time Clocking
+
+**WorkProof (with screenshots):**
+- For mobile field workers
+- Requires screenshot upload
+- Proof of work
+- Images stored in GCS
+- Consolidates to time_entries
+
+**Time Clocking (no screenshots):**
+- For premium/office users
+- JSON-only (fast)
+- No image storage needed
+- Same consolidation logic
+- Separate table (time_clockings)
+
+**Both:**
+- Track incremental hours (not cumulative)
+- Auto-consolidate to time_entries
+- Use same activity_id system
+- Same permissions model
+
+---
+
+## 🎉 Summary
+
+**You now have:**
+
+- ✅ **79+ Standard Redmine API endpoints** (complete core functionality)
+- ✅ **22 Custom WorkProof/Time Clocking endpoints** (time tracking)
+- ✅ **Comprehensive documentation** (500+ lines per guide)
+- ✅ **Local & Production environments** (ready to use)
+- ✅ **Authentication configured** (API key based)
+- ✅ **Examples for all endpoints** (JSON request/response)
+
+**Total: 101+ API endpoints available in Postman!** 🚀
+
+---
+
+## 📚 External Resources
+
+**Official Redmine API:**
+- Main: https://www.redmine.org/projects/redmine/wiki/rest_api
+- Issues: https://www.redmine.org/projects/redmine/wiki/Rest_Issues
+- Projects: https://www.redmine.org/projects/redmine/wiki/Rest_Projects
+- Users: https://www.redmine.org/projects/redmine/wiki/Rest_Users
+- Time Entries: https://www.redmine.org/projects/redmine/wiki/Rest_TimeEntries
+
+**Google Cloud Storage:**
+- Documentation: https://cloud.google.com/storage/docs
+- Ruby Client: https://github.com/googleapis/google-cloud-ruby
+
+---
+
+## 🤝 Support
+
+For issues or questions:
+
+1. Check the relevant guide in this folder
+2. Review Postman collection documentation
+3. Test in local environment first
+4. Check API response errors (422, 403, 404)
+5. Verify API key is correct
+6. Ensure API is enabled in Redmine settings
+
+---
+
+**Happy API Testing!** 🎊

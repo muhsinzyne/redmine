@@ -17,6 +17,11 @@ Rails.application.routes.draw do
     put 'work_proofs/:id.:format', to: 'work_proofs_api#update'
     patch 'work_proofs/:id.:format', to: 'work_proofs_api#update'
     delete 'work_proofs/:id.:format', to: 'work_proofs_api#destroy'
+    
+    # Time tracking endpoints
+    post 'work_proofs/:id/clock_out.:format', to: 'work_proofs_api#clock_out'
+    post 'work_proofs/:id/consolidate.:format', to: 'work_proofs_api#consolidate'
+    post 'work_proofs/consolidate_by_issue.:format', to: 'work_proofs_api#consolidate_by_issue'
   end
 end
   

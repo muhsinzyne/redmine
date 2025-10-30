@@ -56,4 +56,8 @@ ssl/
 *.key
 *.crt
 
+# Uploaded images (local fallback)
+/public/uploads/
+
 server_credentials/*
+.server_password

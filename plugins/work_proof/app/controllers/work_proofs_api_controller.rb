@@ -52,10 +52,26 @@ class WorkProofsApiController < ApplicationController
   end
   
   # POST /projects/:project_id/work_proofs.json
+  # Accepts multipart/form-data with image file upload
   def create
-    @work_proof = WorkProof.new(work_proof_params)
-    @work_proof.project_id = @project.id
+    # Handle image upload if file is provided
+    if params[:image].present?
+      image_url = upload_to_gcs(params[:image])
+      unless image_url
+        render json: { errors: ['Image upload failed'] }, status: :unprocessable_entity
+        return
+      end
+    else
+      # If no file, expect image_url parameter
+      image_url = params[:image_url] || work_proof_params[:image_url]
+    end
+    
+    @work_proof = WorkProof.new(work_proof_params.except(:image_url))
+    @work_proof.project_id = params[:project_id] || @project.id
+    @work_proof.issue_id = params[:issue_id] if params[:issue_id].present?
     @work_proof.user_id = User.current.id
+    @work_proof.image_url = image_url
+    @work_proof.date = params[:date] || Date.today
     
     if @work_proof.save
       respond_to do |format|
@@ -95,6 +111,68 @@ class WorkProofsApiController < ApplicationController
   end
   
   private
+  
+  def upload_to_gcs(image_file)
+    begin
+      require 'google/cloud/storage'
+      
+      # Initialize GCS client
+      gcs_key_path = Rails.root.join('config', 'gcp', 'gcp-key.json')
+      
+      # Check if GCS is configured
+      unless File.exist?(gcs_key_path) && File.size(gcs_key_path) > 0
+        Rails.logger.warn "GCS key not found, using local fallback"
+        return upload_to_local(image_file)
+      end
+      
+      storage = Google::Cloud::Storage.new(
+        project_id: ENV['GCP_PROJECT_ID'] || 'redmine-workproof',
+        credentials: gcs_key_path
+      )
+      
+      bucket_name = ENV['GCS_BUCKET'] || 'redmine-workproof-images'
+      bucket = storage.bucket(bucket_name)
+      
+      # Generate unique filename
+      extension = File.extname(image_file.original_filename)
+      filename = "#{Time.now.to_i}_#{User.current.id}_#{SecureRandom.hex(8)}#{extension}"
+      
+      # Upload file
+      file = bucket.create_file(
+        image_file.tempfile,
+        filename,
+        content_type: image_file.content_type || 'image/jpeg'
+      )
+      
+      # Make file public
+      file.acl.public!
+      
+      # Return public URL
+      file.public_url
+      
+    rescue => e
+      Rails.logger.error "GCS upload failed: #{e.message}"
+      # Fallback to local storage
+      upload_to_local(image_file)
+    end
+  end
+  
+  def upload_to_local(image_file)
+    # Fallback: save to local public directory
+    upload_dir = Rails.root.join('public', 'uploads', 'work_proofs', Date.today.strftime('%Y%m%d'))
+    FileUtils.mkdir_p(upload_dir)
+    
+    extension = File.extname(image_file.original_filename)
+    filename = "#{Time.now.to_i}_#{User.current.id}_#{SecureRandom.hex(8)}#{extension}"
+    filepath = upload_dir.join(filename)
+    
+    File.open(filepath, 'wb') do |file|
+      file.write(image_file.read)
+    end
+    
+    # Return relative URL
+    "/uploads/work_proofs/#{Date.today.strftime('%Y%m%d')}/#{filename}"
+  end
   
   def find_project
     @project = Project.find(params[:project_id])

@@ -30,9 +30,8 @@ class WorkProof < ActiveRecord::Base
   
   # API-friendly representation
   def as_json(options = {})
-    super(options.merge(
-      methods: [:user_name, :issue_subject, :project_name],
-      except: [:created_at, :updated_at] unless options[:include_timestamps]
-    ))
+    merge_options = { methods: [:user_name, :issue_subject, :project_name] }
+    merge_options[:except] = [:created_at, :updated_at] unless options[:include_timestamps]
+    super(options.merge(merge_options))
   end
 end

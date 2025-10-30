@@ -148,10 +148,9 @@ class WorkProofsApiController < ApplicationController
         content_type: image_file.content_type || 'image/jpeg'
       )
       
-      # Make file public
-      file.acl.public!
-      
       # Return public URL
+      # Note: Bucket should have public access configured at bucket level
+      # (uniform bucket-level access), not per-file ACL
       file.public_url
       
     rescue => e

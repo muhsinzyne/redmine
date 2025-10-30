@@ -254,14 +254,21 @@
                   "description": "YYYY-MM-DD format"
                 },
                 {
+                  "key": "activity_id",
+                  "value": "9",
+                  "type": "text",
+                  "description": "TimeEntry activity (9=Development, 8=Design, etc.)"
+                },
+                {
                   "key": "description",
                   "value": "Work completed with image",
                   "type": "text"
                 },
                 {
                   "key": "work_hours",
-                  "value": "3.5",
-                  "type": "text"
+                  "value": "0.17",
+                  "type": "text",
+                  "description": "Incremental hours since last screenshot (e.g., 0.17 = ~10 minutes)"
                 }
               ]
             },
@@ -276,7 +283,7 @@
                 "work_proofs.json"
               ]
             },
-            "description": "Create a work proof with image file upload.\n\nThis endpoint accepts multipart/form-data with actual image file.\n\nThe image will be uploaded to Google Cloud Storage (or local storage as fallback).\n\nPermission required: manage_work_proof"
+            "description": "Create a work proof with image file upload.\n\nThis endpoint accepts multipart/form-data with actual image file.\n\nThe image will be uploaded to Google Cloud Storage (or local storage as fallback).\n\nwork_hours: Incremental hours since last screenshot (mobile app calculates this)\nactivity_id: Required for time_entry consolidation\n\nPermission required: manage_work_proof"
           },
           "response": []
         },
@@ -334,6 +341,37 @@
               ]
             },
             "description": "Delete a work proof.\n\nPermission required: manage_work_proof or admin"
+          },
+          "response": []
+        },
+        {
+          "name": "Consolidate Work Proofs by Issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_id\": {{ISSUE_ID}}\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/consolidate_by_issue.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs",
+                "consolidate_by_issue.json"
+              ]
+            },
+            "description": "Consolidate all pending work proofs for an issue to a single time_entry.\n\nCalculates total hours by summing work_hours from all screenshots.\n\nExample:\n- 5 work_proofs with work_hours: 0.0, 0.17, 0.15, 0.20, 0.18\n- Total: 0.70 hours\n- Creates TimeEntry with 0.70 hours\n\nPermission required: manage_work_proof"
           },
           "response": []
         }

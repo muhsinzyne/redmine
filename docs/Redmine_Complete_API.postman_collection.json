@@ -1,0 +1,1386 @@
+{
+  "info": {
+    "name": "Redmine Complete REST API",
+    "description": "Complete collection of Redmine REST API endpoints based on official documentation.\n\nSource: https://www.redmine.org/projects/redmine/wiki/rest_api\n\nAuthentication: API Key (X-Redmine-API-Key header)\n\nSupports: JSON and XML formats\n\nCoverage:\n- Issues (CRUD + advanced queries)\n- Projects (CRUD + memberships)\n- Users (CRUD + current user)\n- Time Entries (CRUD + reporting)\n- Wiki Pages (CRUD + attachments)\n- Attachments (Upload + Download)\n- Issue Relations (CRUD)\n- Versions (CRUD)\n- Issue Categories (CRUD)\n- Trackers (List)\n- Issue Statuses (List)\n- Enumerations (Priorities, Activities)\n- Queries (List + Execute)\n- Groups (CRUD + users)\n- Roles (List + permissions)\n- Custom Fields (List)\n- News (List)\n- Files (List)\n- Search (Global search)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Issues",
+      "description": "Complete CRUD operations for issues. Includes filtering, searching, creating with attachments, updating, and deleting.",
+      "item": [
+        {
+          "name": "List Issues",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues.json?limit={{LIMIT}}&offset={{OFFSET}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues.json"],
+              "query": [
+                {"key": "limit", "value": "{{LIMIT}}", "description": "Number of results per page (max 100)"},
+                {"key": "offset", "value": "{{OFFSET}}", "description": "Skip first N results"}
+              ]
+            },
+            "description": "Get all issues with pagination.\n\nOptional filters:\n- project_id\n- tracker_id\n- status_id\n- assigned_to_id\n- updated_on (>=2025-01-01)\n- created_on\n- cf_X (custom field)\n\nExample: /issues.json?project_id=1&status_id=open"
+          }
+        },
+        {
+          "name": "List Issues (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues.json?project_id={{PROJECT_ID}}&status_id=open&assigned_to_id=me",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues.json"],
+              "query": [
+                {"key": "project_id", "value": "{{PROJECT_ID}}"},
+                {"key": "status_id", "value": "open", "description": "open, closed, or specific ID"},
+                {"key": "assigned_to_id", "value": "me", "description": "me, or user ID"}
+              ]
+            },
+            "description": "Filter issues by project, status, assignee.\n\nMore filters:\n- tracker_id: Filter by tracker\n- priority_id: Filter by priority\n- author_id: Filter by author\n- subject: Search in subject (~)\n- created_on: >=2025-01-01\n- updated_on: <=2025-12-31"
+          }
+        },
+        {
+          "name": "Get Issue",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}.json?include=children,attachments,relations,changesets,journals,watchers",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}.json"],
+              "query": [
+                {"key": "include", "value": "children,attachments,relations,changesets,journals,watchers"}
+              ]
+            },
+            "description": "Get single issue with all details.\n\ninclude options:\n- children: Sub-issues\n- attachments: Files\n- relations: Related issues\n- changesets: Git commits\n- journals: Change history\n- watchers: Users watching this issue"
+          }
+        },
+        {
+          "name": "Create Issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue\": {\n    \"project_id\": {{PROJECT_ID}},\n    \"tracker_id\": 1,\n    \"status_id\": 1,\n    \"priority_id\": 2,\n    \"subject\": \"New issue from API\",\n    \"description\": \"Issue description here\",\n    \"assigned_to_id\": {{USER_ID}},\n    \"category_id\": 1,\n    \"fixed_version_id\": 1,\n    \"parent_issue_id\": null,\n    \"start_date\": \"2025-10-30\",\n    \"due_date\": \"2025-11-30\",\n    \"estimated_hours\": 10,\n    \"custom_fields\": [\n      {\"id\": 1, \"value\": \"Custom value\"}\n    ],\n    \"watcher_user_ids\": [1, 2],\n    \"uploads\": []\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/issues.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues.json"]
+            },
+            "description": "Create new issue.\n\nRequired:\n- project_id\n- subject\n\nOptional:\n- tracker_id (default: first tracker)\n- status_id (default: default status)\n- priority_id\n- description\n- assigned_to_id\n- category_id\n- fixed_version_id\n- parent_issue_id\n- start_date, due_date\n- estimated_hours\n- custom_fields\n- watcher_user_ids\n- uploads (file tokens)"
+          }
+        },
+        {
+          "name": "Update Issue",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue\": {\n    \"subject\": \"Updated subject\",\n    \"description\": \"Updated description\",\n    \"status_id\": 3,\n    \"notes\": \"Adding a comment with this update\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}.json"]
+            },
+            "description": "Update existing issue.\n\nAll fields are optional.\n\nUse 'notes' field to add a comment."
+          }
+        },
+        {
+          "name": "Delete Issue",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}.json"]
+            },
+            "description": "Delete an issue.\n\nRequires appropriate permissions."
+          }
+        },
+        {
+          "name": "Add Watcher",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}/watchers.json?user_id={{USER_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}", "watchers.json"],
+              "query": [
+                {"key": "user_id", "value": "{{USER_ID}}"}
+              ]
+            },
+            "description": "Add a watcher to an issue."
+          }
+        },
+        {
+          "name": "Remove Watcher",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}/watchers/{{USER_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}", "watchers", "{{USER_ID}}.json"]
+            },
+            "description": "Remove a watcher from an issue."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "description": "Project management endpoints",
+      "item": [
+        {
+          "name": "List Projects",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects.json?include=trackers,issue_categories,enabled_modules",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects.json"],
+              "query": [
+                {"key": "include", "value": "trackers,issue_categories,enabled_modules"}
+              ]
+            },
+            "description": "List all visible projects.\n\ninclude options:\n- trackers\n- issue_categories\n- enabled_modules\n- time_entry_activities"
+          }
+        },
+        {
+          "name": "Get Project",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}.json?include=trackers,issue_categories,enabled_modules,time_entry_activities",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}.json"],
+              "query": [
+                {"key": "include", "value": "trackers,issue_categories,enabled_modules,time_entry_activities"}
+              ]
+            },
+            "description": "Get single project details."
+          }
+        },
+        {
+          "name": "Create Project",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {\n    \"name\": \"New Project\",\n    \"identifier\": \"new-project\",\n    \"description\": \"Project description\",\n    \"is_public\": true,\n    \"parent_id\": null,\n    \"inherit_members\": false,\n    \"enabled_module_names\": [\n      \"issue_tracking\",\n      \"time_tracking\",\n      \"wiki\",\n      \"repository\",\n      \"boards\",\n      \"calendar\",\n      \"gantt\"\n    ],\n    \"tracker_ids\": [1, 2, 3]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects.json"]
+            },
+            "description": "Create new project.\n\nRequired:\n- name\n- identifier (lowercase, no spaces)"
+          }
+        },
+        {
+          "name": "Update Project",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"project\": {\n    \"name\": \"Updated Project Name\",\n    \"description\": \"Updated description\",\n    \"is_public\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}.json"]
+            },
+            "description": "Update existing project."
+          }
+        },
+        {
+          "name": "Delete Project",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}.json"]
+            },
+            "description": "Delete a project."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "User management endpoints",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users.json?status=1",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users.json"],
+              "query": [
+                {"key": "status", "value": "1", "description": "1=active, 2=registered, 3=locked"}
+              ]
+            },
+            "description": "List all users.\n\nFilters:\n- status: 1 (active), 2 (registered), 3 (locked)\n- name: Filter by name/email\n- group_id: Filter by group"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{USER_ID}}.json?include=memberships,groups",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{USER_ID}}.json"],
+              "query": [
+                {"key": "include", "value": "memberships,groups"}
+              ]
+            },
+            "description": "Get single user.\n\ninclude options:\n- memberships: Project memberships\n- groups: User groups"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/current.json?include=memberships,groups",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "current.json"],
+              "query": [
+                {"key": "include", "value": "memberships,groups"}
+              ]
+            },
+            "description": "Get currently authenticated user."
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"login\": \"newuser\",\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"mail\": \"john.doe@example.com\",\n    \"password\": \"SecurePass123!\",\n    \"auth_source_id\": null,\n    \"mail_notification\": \"all\",\n    \"must_change_passwd\": false,\n    \"generate_password\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users.json"]
+            },
+            "description": "Create new user.\n\nRequired:\n- login\n- firstname\n- lastname\n- mail\n\nPassword options:\n- password: Set specific password\n- generate_password: Generate random password\n- must_change_passwd: Force password change on first login"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"firstname\": \"Jane\",\n    \"lastname\": \"Smith\",\n    \"mail\": \"jane.smith@example.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{USER_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{USER_ID}}.json"]
+            },
+            "description": "Update existing user."
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/users/{{USER_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["users", "{{USER_ID}}.json"]
+            },
+            "description": "Delete a user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Time Entries",
+      "description": "Time tracking endpoints",
+      "item": [
+        {
+          "name": "List Time Entries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries.json?limit={{LIMIT}}&offset={{OFFSET}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries.json"],
+              "query": [
+                {"key": "limit", "value": "{{LIMIT}}"},
+                {"key": "offset", "value": "{{OFFSET}}"}
+              ]
+            },
+            "description": "List all time entries.\n\nFilters:\n- project_id\n- issue_id\n- user_id\n- spent_on (>=2025-01-01)\n- from, to (date range)\n- activity_id"
+          }
+        },
+        {
+          "name": "List Time Entries (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries.json?project_id={{PROJECT_ID}}&user_id=me&from=2025-10-01&to=2025-10-31",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries.json"],
+              "query": [
+                {"key": "project_id", "value": "{{PROJECT_ID}}"},
+                {"key": "user_id", "value": "me"},
+                {"key": "from", "value": "2025-10-01"},
+                {"key": "to", "value": "2025-10-31"}
+              ]
+            },
+            "description": "Filter time entries by project, user, date range."
+          }
+        },
+        {
+          "name": "Get Time Entry",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries/{{TIME_ENTRY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries", "{{TIME_ENTRY_ID}}.json"]
+            },
+            "description": "Get single time entry."
+          }
+        },
+        {
+          "name": "Create Time Entry",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"time_entry\": {\n    \"issue_id\": {{ISSUE_ID}},\n    \"spent_on\": \"2025-10-30\",\n    \"hours\": 2.5,\n    \"activity_id\": 9,\n    \"comments\": \"Work description\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries.json"]
+            },
+            "description": "Create new time entry.\n\nRequired:\n- issue_id OR project_id\n- hours\n- activity_id\n- spent_on\n\nOptional:\n- comments\n- custom_fields"
+          }
+        },
+        {
+          "name": "Update Time Entry",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"time_entry\": {\n    \"hours\": 3.0,\n    \"comments\": \"Updated work description\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries/{{TIME_ENTRY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries", "{{TIME_ENTRY_ID}}.json"]
+            },
+            "description": "Update existing time entry."
+          }
+        },
+        {
+          "name": "Delete Time Entry",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/time_entries/{{TIME_ENTRY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["time_entries", "{{TIME_ENTRY_ID}}.json"]
+            },
+            "description": "Delete a time entry."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attachments",
+      "description": "File upload and download",
+      "item": [
+        {
+          "name": "Upload File (Step 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/octet-stream"}
+            ],
+            "body": {
+              "mode": "file",
+              "file": {}
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/uploads.json?filename=document.pdf",
+              "host": ["{{BASE_URL}}"],
+              "path": ["uploads.json"],
+              "query": [
+                {"key": "filename", "value": "document.pdf"}
+              ]
+            },
+            "description": "Upload file and get token.\n\nReturns token to use in Step 2.\n\nHeaders:\n- Content-Type: application/octet-stream\n\nBody: Binary file content"
+          }
+        },
+        {
+          "name": "Get Attachment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/attachments/{{ATTACHMENT_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["attachments", "{{ATTACHMENT_ID}}.json"]
+            },
+            "description": "Get attachment metadata.\n\nReturns:\n- filename\n- filesize\n- content_type\n- content_url (download link)"
+          }
+        },
+        {
+          "name": "Download Attachment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/attachments/download/{{ATTACHMENT_ID}}/{{FILENAME}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["attachments", "download", "{{ATTACHMENT_ID}}", "{{FILENAME}}"]
+            },
+            "description": "Download attachment file.\n\nReturns binary file content."
+          }
+        },
+        {
+          "name": "Delete Attachment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/attachments/{{ATTACHMENT_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["attachments", "{{ATTACHMENT_ID}}.json"]
+            },
+            "description": "Delete an attachment."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wiki Pages",
+      "description": "Wiki content management",
+      "item": [
+        {
+          "name": "List Wiki Pages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/wiki/index.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "wiki", "index.json"]
+            },
+            "description": "List all wiki pages in a project."
+          }
+        },
+        {
+          "name": "Get Wiki Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/wiki/{{WIKI_PAGE}}.json?include=attachments",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "wiki", "{{WIKI_PAGE}}.json"],
+              "query": [
+                {"key": "include", "value": "attachments"}
+              ]
+            },
+            "description": "Get wiki page content.\n\nWIKI_PAGE can be page title or 'Wiki' for home page."
+          }
+        },
+        {
+          "name": "Get Wiki Page (Version)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/wiki/{{WIKI_PAGE}}/{{VERSION}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "wiki", "{{WIKI_PAGE}}", "{{VERSION}}.json"]
+            },
+            "description": "Get specific version of wiki page."
+          }
+        },
+        {
+          "name": "Create/Update Wiki Page",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wiki_page\": {\n    \"text\": \"# Wiki Page Content\\n\\nContent in Textile or Markdown format.\",\n    \"comments\": \"Updated via API\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/wiki/{{WIKI_PAGE}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "wiki", "{{WIKI_PAGE}}.json"]
+            },
+            "description": "Create or update wiki page.\n\nIf page exists, it will be updated.\nIf page doesn't exist, it will be created."
+          }
+        },
+        {
+          "name": "Delete Wiki Page",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/wiki/{{WIKI_PAGE}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "wiki", "{{WIKI_PAGE}}.json"]
+            },
+            "description": "Delete a wiki page."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issue Relations",
+      "description": "Manage relationships between issues",
+      "item": [
+        {
+          "name": "List Issue Relations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}/relations.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}", "relations.json"]
+            },
+            "description": "List all relations for an issue."
+          }
+        },
+        {
+          "name": "Create Issue Relation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"relation\": {\n    \"issue_to_id\": 2,\n    \"relation_type\": \"relates\",\n    \"delay\": null\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/issues/{{ISSUE_ID}}/relations.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issues", "{{ISSUE_ID}}", "relations.json"]
+            },
+            "description": "Create relation between issues.\n\nrelation_type:\n- relates\n- duplicates\n- duplicated\n- blocks\n- blocked\n- precedes\n- follows\n- copied_to\n- copied_from"
+          }
+        },
+        {
+          "name": "Get Issue Relation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/relations/{{RELATION_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["relations", "{{RELATION_ID}}.json"]
+            },
+            "description": "Get single relation details."
+          }
+        },
+        {
+          "name": "Delete Issue Relation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/relations/{{RELATION_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["relations", "{{RELATION_ID}}.json"]
+            },
+            "description": "Delete a relation."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Versions",
+      "description": "Project version/milestone management",
+      "item": [
+        {
+          "name": "List Versions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/versions.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "versions.json"]
+            },
+            "description": "List all versions in a project."
+          }
+        },
+        {
+          "name": "Get Version",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/versions/{{VERSION_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["versions", "{{VERSION_ID}}.json"]
+            },
+            "description": "Get single version details."
+          }
+        },
+        {
+          "name": "Create Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {\n    \"name\": \"v1.0.0\",\n    \"status\": \"open\",\n    \"sharing\": \"none\",\n    \"due_date\": \"2025-12-31\",\n    \"description\": \"First major release\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/versions.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "versions.json"]
+            },
+            "description": "Create new version.\n\nstatus: open, locked, closed\nsharing: none, descendants, hierarchy, tree, system"
+          }
+        },
+        {
+          "name": "Update Version",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": {\n    \"name\": \"v1.0.1\",\n    \"status\": \"closed\",\n    \"due_date\": \"2025-11-30\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/versions/{{VERSION_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["versions", "{{VERSION_ID}}.json"]
+            },
+            "description": "Update existing version."
+          }
+        },
+        {
+          "name": "Delete Version",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/versions/{{VERSION_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["versions", "{{VERSION_ID}}.json"]
+            },
+            "description": "Delete a version."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issue Categories",
+      "description": "Issue category management",
+      "item": [
+        {
+          "name": "List Issue Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/issue_categories.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "issue_categories.json"]
+            },
+            "description": "List all issue categories in a project."
+          }
+        },
+        {
+          "name": "Get Issue Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issue_categories/{{CATEGORY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issue_categories", "{{CATEGORY_ID}}.json"]
+            },
+            "description": "Get single category details."
+          }
+        },
+        {
+          "name": "Create Issue Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_category\": {\n    \"name\": \"Bug Fixes\",\n    \"assigned_to_id\": {{USER_ID}}\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/issue_categories.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "issue_categories.json"]
+            },
+            "description": "Create new issue category."
+          }
+        },
+        {
+          "name": "Update Issue Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_category\": {\n    \"name\": \"Critical Bugs\",\n    \"assigned_to_id\": {{USER_ID}}\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/issue_categories/{{CATEGORY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issue_categories", "{{CATEGORY_ID}}.json"]
+            },
+            "description": "Update existing category."
+          }
+        },
+        {
+          "name": "Delete Issue Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issue_categories/{{CATEGORY_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issue_categories", "{{CATEGORY_ID}}.json"]
+            },
+            "description": "Delete a category."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trackers",
+      "description": "Issue tracker types (Bug, Feature, Task, etc)",
+      "item": [
+        {
+          "name": "List Trackers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/trackers.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["trackers.json"]
+            },
+            "description": "List all trackers (Bug, Feature, Task, Support, etc)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Issue Statuses",
+      "description": "Issue status options",
+      "item": [
+        {
+          "name": "List Issue Statuses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/issue_statuses.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["issue_statuses.json"]
+            },
+            "description": "List all issue statuses (New, In Progress, Resolved, Closed, etc)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Enumerations",
+      "description": "Priorities and time entry activities",
+      "item": [
+        {
+          "name": "List Issue Priorities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/enumerations/issue_priorities.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["enumerations", "issue_priorities.json"]
+            },
+            "description": "List all issue priorities (Low, Normal, High, Urgent, Immediate)."
+          }
+        },
+        {
+          "name": "List Time Entry Activities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/enumerations/time_entry_activities.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["enumerations", "time_entry_activities.json"]
+            },
+            "description": "List all time entry activities (Design, Development, Testing, etc)."
+          }
+        },
+        {
+          "name": "List Document Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/enumerations/document_categories.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["enumerations", "document_categories.json"]
+            },
+            "description": "List all document categories."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "description": "User group management",
+      "item": [
+        {
+          "name": "List Groups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/groups.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups.json"]
+            },
+            "description": "List all groups."
+          }
+        },
+        {
+          "name": "Get Group",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/groups/{{GROUP_ID}}.json?include=users,memberships",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups", "{{GROUP_ID}}.json"],
+              "query": [
+                {"key": "include", "value": "users,memberships"}
+              ]
+            },
+            "description": "Get group details with users and memberships."
+          }
+        },
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"group\": {\n    \"name\": \"Developers\",\n    \"user_ids\": [1, 2, 3]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/groups.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups.json"]
+            },
+            "description": "Create new group."
+          }
+        },
+        {
+          "name": "Update Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"group\": {\n    \"name\": \"Senior Developers\",\n    \"user_ids\": [1, 2]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/groups/{{GROUP_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups", "{{GROUP_ID}}.json"]
+            },
+            "description": "Update existing group."
+          }
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/groups/{{GROUP_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups", "{{GROUP_ID}}.json"]
+            },
+            "description": "Delete a group."
+          }
+        },
+        {
+          "name": "Add User to Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": {{USER_ID}}\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/groups/{{GROUP_ID}}/users.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups", "{{GROUP_ID}}", "users.json"]
+            },
+            "description": "Add user to group."
+          }
+        },
+        {
+          "name": "Remove User from Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/groups/{{GROUP_ID}}/users/{{USER_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["groups", "{{GROUP_ID}}", "users", "{{USER_ID}}.json"]
+            },
+            "description": "Remove user from group."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Roles",
+      "description": "User roles and permissions",
+      "item": [
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/roles.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["roles.json"]
+            },
+            "description": "List all roles (Manager, Developer, Reporter, etc)."
+          }
+        },
+        {
+          "name": "Get Role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/roles/{{ROLE_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["roles", "{{ROLE_ID}}.json"]
+            },
+            "description": "Get role details with permissions."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Memberships",
+      "description": "Project membership management",
+      "item": [
+        {
+          "name": "List Project Memberships",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/memberships.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "memberships.json"]
+            },
+            "description": "List all memberships in a project."
+          }
+        },
+        {
+          "name": "Get Membership",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/memberships/{{MEMBERSHIP_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["memberships", "{{MEMBERSHIP_ID}}.json"]
+            },
+            "description": "Get single membership details."
+          }
+        },
+        {
+          "name": "Create Membership",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"membership\": {\n    \"user_id\": {{USER_ID}},\n    \"role_ids\": [3, 4]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/memberships.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "memberships.json"]
+            },
+            "description": "Add user to project with roles.\n\nUse user_id for users, or group_id for groups."
+          }
+        },
+        {
+          "name": "Update Membership",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"membership\": {\n    \"role_ids\": [3, 5]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/memberships/{{MEMBERSHIP_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["memberships", "{{MEMBERSHIP_ID}}.json"]
+            },
+            "description": "Update membership roles."
+          }
+        },
+        {
+          "name": "Delete Membership",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/memberships/{{MEMBERSHIP_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["memberships", "{{MEMBERSHIP_ID}}.json"]
+            },
+            "description": "Remove user from project."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Custom Fields",
+      "description": "Custom field definitions",
+      "item": [
+        {
+          "name": "List Custom Fields",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/custom_fields.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["custom_fields.json"]
+            },
+            "description": "List all custom fields."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queries",
+      "description": "Saved issue queries",
+      "item": [
+        {
+          "name": "List Queries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/queries.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["queries.json"]
+            },
+            "description": "List all saved queries."
+          }
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "description": "Project news/announcements",
+      "item": [
+        {
+          "name": "List All News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/news.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["news.json"]
+            },
+            "description": "List all news across all projects."
+          }
+        },
+        {
+          "name": "List Project News",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/news.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "news.json"]
+            },
+            "description": "List news for a specific project."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Files",
+      "description": "Project files",
+      "item": [
+        {
+          "name": "List Project Files",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/files.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["projects", "{{PROJECT_ID}}", "files.json"]
+            },
+            "description": "List all files in a project."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "description": "Global search across Redmine",
+      "item": [
+        {
+          "name": "Search All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/search.json?q={{SEARCH_QUERY}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["search.json"],
+              "query": [
+                {"key": "q", "value": "{{SEARCH_QUERY}}", "description": "Search query string"}
+              ]
+            },
+            "description": "Search across all content types.\n\nOptional filters:\n- scope: project_{{PROJECT_ID}}\n- issues: 1 (include issues)\n- news: 1 (include news)\n- documents: 1 (include documents)\n- changesets: 1 (include commits)\n- wiki_pages: 1 (include wiki)\n- messages: 1 (include forum messages)\n- projects: 1 (include projects)"
+          }
+        },
+        {
+          "name": "Search in Project",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/search.json?q={{SEARCH_QUERY}}&scope=project_{{PROJECT_ID}}&issues=1&wiki_pages=1",
+              "host": ["{{BASE_URL}}"],
+              "path": ["search.json"],
+              "query": [
+                {"key": "q", "value": "{{SEARCH_QUERY}}"},
+                {"key": "scope", "value": "project_{{PROJECT_ID}}"},
+                {"key": "issues", "value": "1"},
+                {"key": "wiki_pages", "value": "1"}
+              ]
+            },
+            "description": "Search within a specific project."
+          }
+        }
+      ]
+    },
+    {
+      "name": "My Account",
+      "description": "Current user account management",
+      "item": [
+        {
+          "name": "Get My Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/my/account.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["my", "account.json"]
+            },
+            "description": "Get current user's account details."
+          }
+        },
+        {
+          "name": "Update My Account",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"mail\": \"john.doe@example.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/my/account.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["my", "account.json"]
+            },
+            "description": "Update current user's account."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Journals",
+      "description": "Issue change history",
+      "item": [
+        {
+          "name": "Get Journal",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/journals/{{JOURNAL_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["journals", "{{JOURNAL_ID}}.json"]
+            },
+            "description": "Get journal entry details (issue change/comment)."
+          }
+        },
+        {
+          "name": "Update Journal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"journal\": {\n    \"notes\": \"Updated comment text\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/journals/{{JOURNAL_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["journals", "{{JOURNAL_ID}}.json"]
+            },
+            "description": "Update journal comment (requires permissions)."
+          }
+        },
+        {
+          "name": "Delete Journal",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/journals/{{JOURNAL_ID}}.json",
+              "host": ["{{BASE_URL}}"],
+              "path": ["journals", "{{JOURNAL_ID}}.json"]
+            },
+            "description": "Delete journal entry (requires permissions)."
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "value",
+        "value": "{{API_KEY}}",
+        "type": "string"
+      },
+      {
+        "key": "key",
+        "value": "X-Redmine-API-Key",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "BASE_URL",
+      "value": "http://localhost:4001",
+      "type": "string"
+    },
+    {
+      "key": "API_KEY",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+

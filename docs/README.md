@@ -47,14 +47,16 @@ Complete documentation for Redmine WorkProof custom installation.
 | [WORKPROOF_IMAGE_STORAGE.md](WORKPROOF_IMAGE_STORAGE.md) | Image storage architecture (GCS, local storage) |
 | [GCS_QUICK_SETUP.md](GCS_QUICK_SETUP.md) | ⚡ **Quick automated GCS setup (recommended)** |
 | [GCS_SETUP_GUIDE.md](GCS_SETUP_GUIDE.md) | Detailed manual GCS setup guide |
-| [POSTMAN_SETUP.md](POSTMAN_SETUP.md) | Import and use Postman collection |
+| [POSTMAN_LOCAL_TESTING.md](POSTMAN_LOCAL_TESTING.md) | ⚡ **Test API locally with Postman** |
+| [POSTMAN_SETUP.md](POSTMAN_SETUP.md) | Import and use Postman collection (production) |
 
 ### **📦 Postman Collection**
 
 | File | Description |
 |------|-------------|
-| [WorkProof_API.postman_collection.json](WorkProof_API.postman_collection.json) | Postman collection with 14 API requests |
-| [WorkProof_API.postman_environment.json](WorkProof_API.postman_environment.json) | Postman environment variables |
+| [WorkProof_API.postman_collection.json](WorkProof_API.postman_collection.json) | Postman collection with 10 API requests |
+| [WorkProof_API_Local.postman_environment.json](WorkProof_API_Local.postman_environment.json) | ⚡ **Local development environment (localhost:3000)** |
+| [WorkProof_API.postman_environment.json](WorkProof_API.postman_environment.json) | Production environment (track.gocomart.com) |
 
 ---
 

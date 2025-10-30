@@ -2,7 +2,7 @@
   "info": {
     "name": "WorkProof API - Redmine",
     "_postman_id": "workproof-api-collection",
-    "description": "Complete API collection for Redmine WorkProof Plugin\n\nBase URL: https://track.gocomart.com\n\nAuthentication: Use X-Redmine-API-Key header with your API key\n\nGet API Key: Login to Redmine → My Account → API access key → Show",
+    "description": "Complete API collection for Redmine WorkProof Plugin\n\nBase URL: https://track.gocomart.com\n\nAuthentication: Use X-Redmine-API-Key header with your API key\n\nGet API Key: Login to Redmine \u2192 My Account \u2192 API access key \u2192 Show",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -36,8 +36,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ]
             },
             "description": "Get all work proofs for a project.\n\nPermission required: view_work_proof or view_self_work_proof"
           },
@@ -50,8 +56,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?date={{TODAY}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -71,8 +83,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?user_id={{USER_ID}}",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ],
               "query": [
                 {
                   "key": "user_id",
@@ -92,8 +110,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?start_date=2025-10-01&end_date=2025-10-31",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ],
               "query": [
                 {
                   "key": "start_date",
@@ -118,8 +142,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json?limit=10&offset=0",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"],
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ],
               "query": [
                 {
                   "key": "limit",
@@ -144,8 +174,15 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs",
+                "{{WORK_PROOF_ID}}.json"
+              ]
             },
             "description": "Get details of a specific work proof by ID"
           },
@@ -173,10 +210,73 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ]
             },
             "description": "Create a new work proof.\n\nRequired fields:\n- issue_id\n- date (YYYY-MM-DD)\n- image_url\n\nOptional fields:\n- description\n- work_hours\n- status\n\nPermission required: manage_work_proof"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Work Proof (with Image Upload)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "description": "Image file (screenshot/photo)"
+                },
+                {
+                  "key": "project_id",
+                  "value": "{{PROJECT_ID}}",
+                  "type": "text"
+                },
+                {
+                  "key": "issue_id",
+                  "value": "{{ISSUE_ID}}",
+                  "type": "text"
+                },
+                {
+                  "key": "date",
+                  "value": "{{TODAY}}",
+                  "type": "text",
+                  "description": "YYYY-MM-DD format"
+                },
+                {
+                  "key": "description",
+                  "value": "Work completed with image",
+                  "type": "text"
+                },
+                {
+                  "key": "work_hours",
+                  "value": "3.5",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs.json"
+              ]
+            },
+            "description": "Create a work proof with image file upload.\n\nThis endpoint accepts multipart/form-data with actual image file.\n\nThe image will be uploaded to Google Cloud Storage (or local storage as fallback).\n\nPermission required: manage_work_proof"
           },
           "response": []
         },
@@ -202,8 +302,15 @@
             },
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs",
+                "{{WORK_PROOF_ID}}.json"
+              ]
             },
             "description": "Update an existing work proof.\n\nYou can update any field except:\n- id\n- project_id\n- user_id\n\nPermission required: manage_work_proof"
           },
@@ -216,8 +323,15 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/work_proofs/{{WORK_PROOF_ID}}.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "work_proofs", "{{WORK_PROOF_ID}}.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "work_proofs",
+                "{{WORK_PROOF_ID}}.json"
+              ]
             },
             "description": "Delete a work proof.\n\nPermission required: manage_work_proof or admin"
           },
@@ -236,8 +350,12 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects.json"
+              ]
             },
             "description": "Get list of all projects the user has access to"
           },
@@ -250,8 +368,13 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}.json"
+              ]
             },
             "description": "Get details of a specific project"
           },
@@ -264,8 +387,14 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/issues.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["projects", "{{PROJECT_ID}}", "issues.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "issues.json"
+              ]
             },
             "description": "Get all issues for a project"
           },
@@ -278,8 +407,13 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/users/current.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["users", "current.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users",
+                "current.json"
+              ]
             },
             "description": "Get information about the authenticated user"
           },
@@ -292,8 +426,12 @@
             "header": [],
             "url": {
               "raw": "{{BASE_URL}}/users.json",
-              "host": ["{{BASE_URL}}"],
-              "path": ["users.json"]
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "users.json"
+              ]
             },
             "description": "Get list of users (requires admin permission)"
           },
@@ -313,7 +451,7 @@
       "key": "API_KEY",
       "value": "your-api-key-here",
       "type": "string",
-      "description": "Get from: My Account → API access key"
+      "description": "Get from: My Account \u2192 API access key"
     },
     {
       "key": "PROJECT_ID",

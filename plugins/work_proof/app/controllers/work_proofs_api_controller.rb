@@ -119,6 +119,7 @@ class WorkProofsApiController < ApplicationController
   def upload_to_gcs(image_file)
     begin
       require 'google/cloud/storage'
+      require 'mini_magick'
       
       # Initialize GCS client
       gcs_key_path = Rails.root.join('config', 'gcp', 'gcp-key.json')
@@ -137,16 +138,27 @@ class WorkProofsApiController < ApplicationController
       bucket_name = ENV['GCS_BUCKET'] || 'redmine-workproof-images'
       bucket = storage.bucket(bucket_name)
       
+      # Compress image before upload
+      compressed_file = compress_image(image_file)
+      original_size = File.size(image_file.tempfile)
+      compressed_size = File.size(compressed_file)
+      compression_ratio = ((1 - compressed_size.to_f / original_size) * 100).round(2)
+      
+      Rails.logger.info "Image compressed: #{original_size} bytes → #{compressed_size} bytes (#{compression_ratio}% reduction)"
+      
       # Generate unique filename
       extension = File.extname(image_file.original_filename)
       filename = "#{Time.now.to_i}_#{User.current.id}_#{SecureRandom.hex(8)}#{extension}"
       
-      # Upload file
+      # Upload compressed file
       file = bucket.create_file(
-        image_file.tempfile,
+        compressed_file,
         filename,
         content_type: image_file.content_type || 'image/jpeg'
       )
+      
+      # Clean up temp file
+      File.delete(compressed_file) if File.exist?(compressed_file)
       
       # Return public URL
       # Note: Bucket should have public access configured at bucket level
@@ -157,6 +169,66 @@ class WorkProofsApiController < ApplicationController
       Rails.logger.error "GCS upload failed: #{e.message}"
       # Fallback to local storage
       upload_to_local(image_file)
+    end
+  end
+  
+  def compress_image(image_file)
+    begin
+      require 'mini_magick'
+      
+      # Check if ImageMagick is installed
+      unless MiniMagick.cli_path
+        Rails.logger.warn "ImageMagick not installed, uploading original image"
+        return image_file.tempfile.path
+      end
+      
+      # Create temp file for compressed image
+      temp_file = Tempfile.new(['compressed', File.extname(image_file.original_filename)])
+      temp_file.binmode
+      
+      # Read image with MiniMagick
+      image = MiniMagick::Image.open(image_file.tempfile.path)
+      
+      # Resize if too large (max 1920px width, maintains aspect ratio)
+      if image.width > 1920
+        image.resize "1920x1920>"
+        Rails.logger.info "Image resized from #{image.width}px width"
+      end
+      
+      # Compress based on format
+      case image.type.downcase
+      when 'jpeg', 'jpg'
+        image.quality 85  # High quality but compressed (was 100%)
+      when 'png'
+        # For PNG photos without transparency, convert to JPEG (better compression)
+        unless image.alpha?
+          image.format 'jpg'
+          image.quality 85
+          temp_file = Tempfile.new(['compressed', '.jpg'])
+          temp_file.binmode
+        else
+          # Keep PNG for images with transparency
+          image.quality 85
+        end
+      when 'webp'
+        image.quality 85
+      end
+      
+      # Strip metadata (EXIF, etc.) to reduce size
+      image.strip
+      
+      # Write compressed image
+      image.write temp_file.path
+      temp_file.rewind
+      
+      temp_file.path
+      
+    rescue LoadError
+      Rails.logger.warn "MiniMagick gem not loaded, uploading original image"
+      image_file.tempfile.path
+    rescue => e
+      Rails.logger.warn "Image compression failed: #{e.message}, using original"
+      image_file.tempfile.path
     end
   end
   

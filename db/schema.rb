@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_27_195938) do
+ActiveRecord::Schema.define(version: 2025_10_30_082833) do
 
   create_table "attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "container_id"
@@ -626,6 +626,9 @@ ActiveRecord::Schema.define(version: 2024_11_27_195938) do
     t.string "image_url", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.decimal "work_hours", precision: 5, scale: 2
+    t.string "status", default: "pending"
     t.index ["date"], name: "index_work_proofs_on_date"
     t.index ["issue_id"], name: "index_work_proofs_on_issue_id"
     t.index ["project_id"], name: "index_work_proofs_on_project_id"

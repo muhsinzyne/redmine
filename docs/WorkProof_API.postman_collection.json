@@ -477,6 +477,165 @@
         }
       ],
       "description": "Standard Redmine API endpoints that may be useful for your mobile app"
+    },
+    {
+      "name": "Time Clockings (Premium - No Screenshots)",
+      "item": [
+        {
+          "name": "List All Time Clockings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings.json"
+              ]
+            },
+            "description": "Get all time clockings for a project.\n\nNo screenshots required - for premium/trusted users.\n\nPermission required: view_work_proof or view_self_work_proof"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Time Clocking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_id\": {{ISSUE_ID}},\n  \"activity_id\": 9,\n  \"time_hours\": 0.17,\n  \"description\": \"Working on task\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings.json"
+              ]
+            },
+            "description": "Create a time clocking entry (NO screenshot required).\n\nFor premium/trusted users who track time without screenshots.\n\nParameters:\n- issue_id: Issue being worked on\n- activity_id: TimeEntry activity (9=Development)\n- time_hours: Incremental hours since last clocking\n- description: Optional note\n\nExample workflow:\n1. First entry: time_hours: 0.0\n2. After 10 min: time_hours: 0.17\n3. After 11 min: time_hours: 0.18\n\nTotal = SUM of all time_hours\n\nPermission required: manage_work_proof"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Time Clocking",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings/{{TIME_CLOCKING_ID}}.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings",
+                "{{TIME_CLOCKING_ID}}.json"
+              ]
+            },
+            "description": "Get a single time clocking by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Time Clocking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"time_clocking\": {\n    \"time_hours\": 0.25,\n    \"description\": \"Updated description\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings/{{TIME_CLOCKING_ID}}.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings",
+                "{{TIME_CLOCKING_ID}}.json"
+              ]
+            },
+            "description": "Update an existing time clocking."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Time Clocking",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings/{{TIME_CLOCKING_ID}}.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings",
+                "{{TIME_CLOCKING_ID}}.json"
+              ]
+            },
+            "description": "Delete a time clocking."
+          },
+          "response": []
+        },
+        {
+          "name": "Consolidate Time Clockings by Issue",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"issue_id\": {{ISSUE_ID}},\n  \"date\": \"{{TODAY}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/projects/{{PROJECT_ID}}/time_clockings/consolidate_by_issue.json",
+              "host": [
+                "{{BASE_URL}}"
+              ],
+              "path": [
+                "projects",
+                "{{PROJECT_ID}}",
+                "time_clockings",
+                "consolidate_by_issue.json"
+              ]
+            },
+            "description": "Consolidate all pending time clockings for an issue to a single time_entry.\n\nCalculates total hours by summing time_hours from all entries.\n\nExample:\n- 5 time clockings with time_hours: 0.0, 0.17, 0.15, 0.20, 0.18\n- Total: SUM = 0.70 hours\n- Creates TimeEntry with 0.70 hours\n\nPermission required: view_self_work_proof (for own time) or view_work_proof (for all)"
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "variable": [

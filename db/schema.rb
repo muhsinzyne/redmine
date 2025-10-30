@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_10_30_085524) do
+ActiveRecord::Schema.define(version: 2025_10_30_090118) do
 
   create_table "attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "container_id"
@@ -632,6 +632,7 @@ ActiveRecord::Schema.define(version: 2025_10_30_085524) do
     t.boolean "consolidated", default: false
     t.datetime "consolidated_at"
     t.integer "time_entry_id"
+    t.decimal "work_hours", precision: 5, scale: 2
     t.index ["activity_id"], name: "index_work_proofs_on_activity_id"
     t.index ["consolidated"], name: "index_work_proofs_on_consolidated"
     t.index ["date"], name: "index_work_proofs_on_date"

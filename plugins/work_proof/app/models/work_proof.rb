@@ -12,6 +12,7 @@ class WorkProof < ActiveRecord::Base
   belongs_to :time_entry, class_name: 'TimeEntry', optional: true
 
   validates :project_id, :issue_id, :user_id, :date, :image_url, presence: true
+  validates :work_hours, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :status, inclusion: { in: [STATUS_PENDING, STATUS_CONSOLIDATED] }, allow_nil: true
   
   # Scopes for common queries

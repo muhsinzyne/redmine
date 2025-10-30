@@ -75,6 +75,7 @@ class WorkProofsApiController < ApplicationController
     @work_proof.date = params[:date] || params.dig(:work_proof, :date) || Date.today
     @work_proof.description = params[:description] || params.dig(:work_proof, :description)
     @work_proof.activity_id = params[:activity_id] || params.dig(:work_proof, :activity_id)
+    @work_proof.work_hours = params[:work_hours] || params.dig(:work_proof, :work_hours) # Incremental hours since last screenshot
     @work_proof.status = WorkProof::STATUS_PENDING # Always pending (screenshot proof)
     
     if @work_proof.save
@@ -121,14 +122,13 @@ class WorkProofsApiController < ApplicationController
     issue_id = params[:issue_id] || params.dig(:work_proof, :issue_id)
     user_id = params[:user_id] || User.current.id
     date = params[:date] ? Date.parse(params[:date]) : Date.today
-    interval_minutes = (params[:interval_minutes] || 10).to_i # Default 10 min screenshots
     
     unless issue_id
       render json: { errors: ['issue_id is required'] }, status: :bad_request
       return
     end
     
-    time_entry = WorkProofConsolidationService.consolidate_by_issue(issue_id, user_id, date, interval_minutes)
+    time_entry = WorkProofConsolidationService.consolidate_by_issue(issue_id, user_id, date)
     
     if time_entry
       work_proofs = WorkProof.where(time_entry_id: time_entry.id)
@@ -147,7 +147,6 @@ class WorkProofsApiController < ApplicationController
             work_proofs_consolidated: work_proofs.count,
             calculation: {
               screenshots: work_proofs.count,
-              interval_minutes: interval_minutes,
               total_hours: time_entry.hours
             }
           }, status: :ok

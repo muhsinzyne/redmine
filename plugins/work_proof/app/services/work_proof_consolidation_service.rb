@@ -1,8 +1,8 @@
 class WorkProofConsolidationService
   class << self
     # Consolidate work proofs for an issue/user/date
-    # Calculates hours by counting work proofs (each = interval minutes)
-    def consolidate_by_issue(issue_id, user_id, date = Date.today, interval_minutes = 10)
+    # Calculates hours by summing work_hours from each screenshot
+    def consolidate_by_issue(issue_id, user_id, date = Date.today)
       work_proofs = WorkProof.where(
         issue_id: issue_id,
         user_id: user_id,
@@ -12,8 +12,9 @@ class WorkProofConsolidationService
       
       return nil if work_proofs.empty?
       
-      # Calculate total hours: count * interval / 60
-      total_hours = (work_proofs.count * interval_minutes / 60.0).round(2)
+      # Calculate total hours by summing work_hours from all screenshots
+      # Each work_proof has incremental work_hours (time since last screenshot)
+      total_hours = work_proofs.sum(:work_hours).round(2)
       
       ActiveRecord::Base.transaction do
         time_entry = TimeEntry.create!(
@@ -44,7 +45,7 @@ class WorkProofConsolidationService
     
     # Auto-consolidate work proofs older than 4 hours
     # Groups by issue/user/date and consolidates each group
-    def auto_consolidate_old_entries(interval_minutes = 10)
+    def auto_consolidate_old_entries
       # Find work proofs that need consolidation
       old_proofs = WorkProof.needs_auto_consolidation
       
@@ -55,9 +56,10 @@ class WorkProofConsolidationService
       
       consolidated_count = 0
       groups.each do |(issue_id, user_id, date), proofs|
-        Rails.logger.info "Auto-consolidating #{proofs.count} work proofs for issue ##{issue_id}, user ##{user_id}, date #{date}"
+        total_hours = proofs.sum(&:work_hours).round(2)
+        Rails.logger.info "Auto-consolidating #{proofs.count} work proofs for issue ##{issue_id}, user ##{user_id}, date #{date} (#{total_hours}h)"
         
-        if consolidate_by_issue(issue_id, user_id, date, interval_minutes)
+        if consolidate_by_issue(issue_id, user_id, date)
           consolidated_count += proofs.count
         end
       end
